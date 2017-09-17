@@ -14,6 +14,7 @@ package student.gettysburg.engine;
 import java.util.Collection;
 import gettysburg.common.*;
 import gettysburg.common.exceptions.GbgNotImplementedException;
+import student.gettysburg.engine.common.GettysburgEngine;
 
 /**
  * A factory class that contains creation methods for all of the components of
@@ -28,7 +29,8 @@ public final class GettysburgFactory
 	 */
 	public static GbgGame makeGame()
 	{
-		throw new GbgNotImplementedException("makeGame()");
+		GbgGame newGame = new GettysburgEngine();
+		return newGame;
 	}
 	
 	

@@ -13,18 +13,36 @@ package student.gettysburg.engine.common;
 
 import java.util.*;
 import gettysburg.common.*;
+import student.gettysburg.engine.utility.configure.BattleOrder;
 
 /**
  * This is the game engine master class that provides the interface to the game
  * implementation. DO NOT change the name of this file and do not change the
- * name ofthe methods that are defined here since they must be defined to implement the
+ * name of the methods that are defined here since they must be defined to implement the
  * GbgGame interface.
  * 
  * @version Jun 9, 2017
  */
 public class GettysburgEngine implements GbgGame
 {
-
+	/**
+	 * private fields for turn number, step, and the units on the board
+	 */
+	private int turnNum;
+	private GbgGameStep step;
+	private ArrayList<GbgUnit> units;
+	
+	/**
+	 * Constructor - add the three units to the board, init turn to 1, and step to union
+	 */
+	public GettysburgEngine(){
+		this.turnNum = 1;
+		this.step = GbgGameStep.UMOVE;
+		units.add(BattleOrder.getUnionBattleOrder()[0].unit);
+		units.add(BattleOrder.getUnionBattleOrder()[1].unit);
+		units.add(BattleOrder.getConfederateBattleOrder()[0].unit);
+	}
+	
 	/*
 	 * @see gettysburg.common.GbgGame#endBattleStep()
 	 */
