@@ -10,10 +10,17 @@
  * Copyright ©2016-2017 Gary F. Pollice
  *******************************************************************************/
 package student.gettysburg.engine.common;
+import gettysburg.common.*;
+import gettysburg.common.exceptions.GbgInvalidMoveException;
+
+import static gettysburg.common.ArmyID.*;
+import static gettysburg.common.Direction.*;
+import static gettysburg.common.UnitSize.*;
+import static gettysburg.common.UnitType.*;
 
 import java.util.*;
-import gettysburg.common.*;
 import student.gettysburg.engine.utility.configure.BattleOrder;
+import student.gettysburg.engine.utility.configure.UnitInitializer;
 
 /**
  * This is the game engine master class that provides the interface to the game
@@ -30,7 +37,7 @@ public class GettysburgEngine implements GbgGame
 	 */
 	private int turnNum;
 	private GbgGameStep step;
-	private ArrayList<GbgUnit> units;
+	private ArrayList<UnitInitializer> units;
 	
 	/**
 	 * Constructor - add the three units to the board, init turn to 1, and step to union
@@ -38,9 +45,10 @@ public class GettysburgEngine implements GbgGame
 	public GettysburgEngine(){
 		this.turnNum = 1;
 		this.step = GbgGameStep.UMOVE;
-		units.add(BattleOrder.getUnionBattleOrder()[0].unit);
-		units.add(BattleOrder.getUnionBattleOrder()[1].unit);
-		units.add(BattleOrder.getConfederateBattleOrder()[0].unit);
+		units = new ArrayList<UnitInitializer>();
+		units.add(new UnitInitializer(this.turnNum, 11, 11, UNION, 5, WEST, "Gamble", 2, DIVISION, CAVALRY));
+		units.add(new UnitInitializer(this.turnNum, 13, 9, UNION, 5, SOUTH, "Devin", 2, DIVISION, CAVALRY));
+		units.add(new UnitInitializer(this.turnNum, 8, 8, CONFEDERATE, 5, EAST, "Heth", 2, DIVISION, INFANTRY));
 	}
 	
 	/*
@@ -89,8 +97,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public GbgGameStep getCurrentStep()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return this.step;
 	}
 	
 	/*
@@ -129,8 +136,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public int getTurnNumber()
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return this.turnNum;
 	}
 
 	/*
@@ -158,9 +164,20 @@ public class GettysburgEngine implements GbgGame
 	 */
 	@Override
 	public void moveUnit(GbgUnit unit, Coordinate from, Coordinate to)
-	{
-		// TODO Auto-generated method stub
-
+	{	
+		// Ensure that no other unit is in the square
+		for(UnitInitializer u : this.units){
+			if (u.where.equals(to)){
+				throw new GbgInvalidMoveException("Tried moving into another unit")
+			}
+		}
+		/* ensure that there is a path from the source to the
+		* destination whose length does not exceed the moving unit’s movement factor */
+		if(unit.getMovementFactor() < from.distanceTo(to)){
+			throw new GbgInvalidMoveException("Move factor is less than distance attempted to move");
+		}
+		// Otherwise, move
+		this.moveUnit(unit, from, to);
 	}
 
 	/*

@@ -66,18 +66,45 @@ public class CoordinateImpl implements Coordinate
 	@Override
 	public Direction directionTo(Coordinate coordinate)
 	{
-		// TODO: Implement this method.
-		return null;
+		if(this.x == coordinate.getX() && this.y > coordinate.getY()){
+			return Direction.NORTH;
+		}
+		if(this.x == coordinate.getX() && this.y < coordinate.getY()){
+			return Direction.SOUTH;
+		}
+		if(this.x > coordinate.getX() && this.y == coordinate.getY()){
+			return Direction.WEST;
+		}
+		if(this.x < coordinate.getX() && this.y == coordinate.getY()){
+			return Direction.EAST;
+		}
+		if(this.x > coordinate.getX() && this.y > coordinate.getY()){
+			return Direction.NORTHWEST;
+		}
+		if(this.x < coordinate.getX() && this.y > coordinate.getY()){
+			return Direction.NORTHEAST;
+		}
+		if(this.x > coordinate.getX() && this.y < coordinate.getY()){
+			return Direction.SOUTHWEST;
+		}
+		if(this.x < coordinate.getX() && this.y < coordinate.getY()){
+			return Direction.SOUTHEAST;
+		}
+		return Direction.NONE;
 	}
 
 	/*
 	 * @see gettysburg.common.Coordinate#distanceTo(gettysburg.common.Coordinate)
+	 * return straight line distance
 	 */
 	@Override
 	public int distanceTo(Coordinate coordinate)
 	{
-		// TODO: Implement this method.
-		return 0;
+		if (this.x == coordinate.getX() && this.y == coordinate.getY()){
+			return 0;
+		}
+		// Max(dx,dy) returns shortest path
+		else return Math.max(Math.abs(this.x-coordinate.getX()),Math.abs(this.y-coordinate.getY()));
 	}
 
 	/*
