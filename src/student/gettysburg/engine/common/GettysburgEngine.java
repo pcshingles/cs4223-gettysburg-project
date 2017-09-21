@@ -37,7 +37,10 @@ public class GettysburgEngine implements GbgGame
 	 */
 	private int turnNum;
 	private GbgGameStep step;
-	private ArrayList<UnitInitializer> units;
+	protected ArrayList<UnitInitializer> units;
+	protected ArrayList<GbgUnit> movedUnits;
+	protected ArrayList<GbgUnit> facedUnits;
+	
 	
 	/**
 	 * Constructor - add the three units to the board, init turn to 1, and step to union
@@ -46,8 +49,8 @@ public class GettysburgEngine implements GbgGame
 		this.turnNum = 1;
 		this.step = GbgGameStep.UMOVE;
 		units = new ArrayList<UnitInitializer>();
-		units.add(new UnitInitializer(this.turnNum, 11, 11, UNION, 5, WEST, "Gamble", 2, DIVISION, CAVALRY));
-		units.add(new UnitInitializer(this.turnNum, 13, 9, UNION, 5, SOUTH, "Devin", 2, DIVISION, CAVALRY));
+		units.add(new UnitInitializer(this.turnNum, 11, 11, UNION, 5, WEST, "Gamble", 3, DIVISION, CAVALRY));
+		units.add(new UnitInitializer(this.turnNum, 13, 9, UNION, 5, SOUTH, "Devin", 3, DIVISION, CAVALRY));
 		units.add(new UnitInitializer(this.turnNum, 8, 8, CONFEDERATE, 5, EAST, "Heth", 2, DIVISION, INFANTRY));
 	}
 	
@@ -155,7 +158,13 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public Collection<GbgUnit> getUnitsAt(Coordinate where)
 	{
-		// TODO Auto-generated method stub
+		/*Collection<GbgUnit> units = new ArrayList<GbgUnit>();
+		for (UnitInitializer u : this.units){
+			if (u.where.equals(where)){
+				units.add(u.unit);
+			}
+		}
+		return units;*/
 		return null;
 	}
 
@@ -165,10 +174,17 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public void moveUnit(GbgUnit unit, Coordinate from, Coordinate to)
 	{	
+		// Ensure that unit has not yet moved
+		for(UnitInitializer u: this.units){
+			if(u.unit.getLeader() == unit.getLeader() && u.unit.getArmy() == unit.getArmy()){
+				throw new GbgInvalidMoveException("Unit has already moved");
+			}
+		}
+		
 		// Ensure that no other unit is in the square
 		for(UnitInitializer u : this.units){
 			if (u.where.equals(to)){
-				throw new GbgInvalidMoveException("Tried moving into another unit")
+				throw new GbgInvalidMoveException("Tried moving into another unit");
 			}
 		}
 		/* ensure that there is a path from the source to the
@@ -177,7 +193,12 @@ public class GettysburgEngine implements GbgGame
 			throw new GbgInvalidMoveException("Move factor is less than distance attempted to move");
 		}
 		// Otherwise, move
-		this.moveUnit(unit, from, to);
+		for(UnitInitializer u: this.units){
+			if (u.unit == unit){
+				u.where = to;
+			}
+		}
+		this.movedUnits.add(unit);
 	}
 
 	/*
@@ -196,7 +217,17 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public void setUnitFacing(GbgUnit unit, Direction direction)
 	{
-		// TODO Auto-generated method stub
+		// Check to see if unit has already been faced
+			for(GbgUnit u: this.facedUnits){
+				if(u.getArmy() == unit.getArmy() && u.getLeader() == unit.getLeader()){
+					throw new GbgInvalidMoveException("Unit has already been faced this turn");
+				}
+			}
+		
+			// move unit
+			unit.setFacing(direction);
+		
+		this.facedUnits.add(unit);
 
 	}
 
@@ -206,7 +237,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public Coordinate whereIsUnit(GbgUnit unit)
 	{
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

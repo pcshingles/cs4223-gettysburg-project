@@ -113,8 +113,7 @@ public class CoordinateImpl implements Coordinate
 	@Override
 	public int getX()
 	{
-		// TODO: Implement this method.
-			return 0;
+		return this.x;
 	}
 
 	/*
@@ -123,8 +122,7 @@ public class CoordinateImpl implements Coordinate
 	@Override
 	public int getY()
 	{
-		// TODO: Implement this method.
-		return 0;
+		return this.y;
 	}
 	
 	// Change the equals and hashCode if you need to.
