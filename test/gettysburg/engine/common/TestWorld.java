@@ -51,4 +51,29 @@ public class TestWorld {
 		engine.setUnitFacing(engine.getUnits().get(0).unit, Direction.NORTHEAST);
 		assertTrue(engine.getUnits().get(0).unit.getFacing() == Direction.NORTHEAST);
 	}
+	
+	@Test(expected = GbgInvalidMoveException.class)
+	public void setFacingTwice(){
+		TestGettysburgEngine engine = new TestGettysburgEngine();
+		engine.setUnitFacing(engine.getUnits().get(0).unit, Direction.NORTHEAST);
+		engine.setUnitFacing(engine.getUnits().get(0).unit, Direction.NORTHEAST);
+	}
+	
+	@Test
+	public void gameStatusIsInProgress(){
+		TestGettysburgEngine engine = new TestGettysburgEngine();
+		assertTrue(engine.getGameStatus() == GbgGameStatus.IN_PROGRESS);
+	}
+	
+	@Test(expected = GbgInvalidMoveException.class)
+	public void wrongTurnExceptionFacing(){
+		TestGettysburgEngine engine = new TestGettysburgEngine();
+		engine.setUnitFacing(engine.getUnits().get(2).unit, Direction.NORTHEAST);
+	}
+	
+	@Test(expected = GbgInvalidMoveException.class)
+	public void wrongTurnExceptionMove(){
+		TestGettysburgEngine engine = new TestGettysburgEngine();
+		engine.moveUnit(engine.getUnits().get(2).unit, engine.getUnits().get(0).where, CoordinateImpl.makeCoordinate(14,14));
+	}
 }

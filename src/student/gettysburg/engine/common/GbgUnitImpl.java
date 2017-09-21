@@ -105,8 +105,7 @@ public class GbgUnitImpl implements GbgUnit
 	@Override
 	public void setFacing(Direction newFacing)
 	{
-		// TODO Auto-generated method stub
-		
+		this.facing = newFacing;
 	}
 
 	/*

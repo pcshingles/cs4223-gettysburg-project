@@ -49,6 +49,8 @@ public class GettysburgEngine implements GbgGame
 		this.turnNum = 1;
 		this.step = GbgGameStep.UMOVE;
 		units = new ArrayList<UnitInitializer>();
+		movedUnits = new ArrayList<GbgUnit>();
+		facedUnits = new ArrayList<GbgUnit>();
 		units.add(new UnitInitializer(this.turnNum, 11, 11, UNION, 5, WEST, "Gamble", 3, DIVISION, CAVALRY));
 		units.add(new UnitInitializer(this.turnNum, 13, 9, UNION, 5, SOUTH, "Devin", 3, DIVISION, CAVALRY));
 		units.add(new UnitInitializer(this.turnNum, 8, 8, CONFEDERATE, 5, EAST, "Heth", 2, DIVISION, INFANTRY));
@@ -105,12 +107,27 @@ public class GettysburgEngine implements GbgGame
 	
 	/*
 	 * @see gettysburg.common.GbgGame#getGameStatus()
+	 * Checks every unit, if tehre are different army ID's then it's in progress
 	 */
 	@Override
 	public GbgGameStatus getGameStatus()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		boolean isOver = true;
+		ArmyID id = null;
+		for(UnitInitializer u : this.units){
+			if(id != u.unit.getArmy() || id == null){
+				isOver = false;
+				break;
+			}
+			id = u.unit.getArmy();
+		}
+		if(id == CONFEDERATE){
+			return GbgGameStatus.CONFEDERATE_WINS;
+		}
+		if(id == UNION){
+			return GbgGameStatus.UNION_WINS;
+		}
+		return GbgGameStatus.IN_PROGRESS;
 	}
 	
 	/*
@@ -174,9 +191,22 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public void moveUnit(GbgUnit unit, Coordinate from, Coordinate to)
 	{	
+		// Ensure that it's the right player's turn
+		if(this.step == GbgGameStep.UMOVE){
+			if (unit.getArmy() == CONFEDERATE){
+				throw new GbgInvalidMoveException("Wrong turn");
+			}
+		}
+		
+		if(this.step == GbgGameStep.CMOVE){
+			if (unit.getArmy() == UNION){
+				throw new GbgInvalidMoveException("Wrong turn");
+			}
+		}
+		
 		// Ensure that unit has not yet moved
-		for(UnitInitializer u: this.units){
-			if(u.unit.getLeader() == unit.getLeader() && u.unit.getArmy() == unit.getArmy()){
+		for(GbgUnit u: this.movedUnits){
+			if(u.getLeader() == unit.getLeader() && u.getArmy() == unit.getArmy()){
 				throw new GbgInvalidMoveException("Unit has already moved");
 			}
 		}
@@ -217,6 +247,20 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public void setUnitFacing(GbgUnit unit, Direction direction)
 	{
+		
+		// Ensure that it's the right player's turn
+				if(this.step == GbgGameStep.UMOVE){
+					if (unit.getArmy() == CONFEDERATE){
+						throw new GbgInvalidMoveException("Wrong turn");
+					}
+				}
+				
+				if(this.step == GbgGameStep.CMOVE){
+					if (unit.getArmy() == UNION){
+						throw new GbgInvalidMoveException("Wrong turn");
+					}
+				}
+		
 		// Check to see if unit has already been faced
 			for(GbgUnit u: this.facedUnits){
 				if(u.getArmy() == unit.getArmy() && u.getLeader() == unit.getLeader()){
