@@ -58,10 +58,10 @@ public class BattleOrder
 	private static UnitInitializer[] unionBattleOrder = {
 		muu(0, 11, 11, 1, WEST, "Gamble", 4, BRIGADE, CAVALRY),			// Turn 0: start of game
 		muu(0, 13, 9, 1, SOUTH, "Devin", 4, BRIGADE, CAVALRY),
-		muu(2, 7, 28, 0, NORTHEAST, "Reynolds", 8, ARMY, HQ),
-		muu(2, 7, 28, 3, NORTHEAST, "Wadsworth", 2, DIVISION, INFANTRY),
-		muu(2, 7, 28, 3, NORTHEAST, "Robinson", 2, DIVISION, INFANTRY),
-		muu(2, 7, 28, 3, NORTHEAST, "Rowley", 2, DIVISION, INFANTRY),
+		muu(0, 7, 28, 0, NORTHEAST, "Reynolds", 8, ARMY, HQ),
+		muu(0, 7, 28, 3, NORTHEAST, "Wadsworth", 2, DIVISION, INFANTRY),
+		muu(0, 7, 28, 3, NORTHEAST, "Robinson", 2, DIVISION, INFANTRY),
+		muu(0, 7, 28, 3, NORTHEAST, "Rowley", 2, DIVISION, INFANTRY),
 		muu(3, 14, 28, 0, NORTH, "Howard", 8, ARMY, HQ),					// Turn 3: 7/1 0800
 		muu(3, 14, 28, 3, NORTH, "von Steinwehr", 2, DIVISION, INFANTRY),
 		muu(3, 14, 28, 2, NORTH, "Schurz", 2, DIVISION, INFANTRY),

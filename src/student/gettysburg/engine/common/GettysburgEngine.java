@@ -165,20 +165,21 @@ public class GettysburgEngine implements GbgGame
 		return this.gameState.getBoard().whereIsUnit(unit);
 	}
 
-//	/*
-//	 * @see gettysburg.common.GbgGame#whereIsUnit(java.lang.String, gettysburg.common.ArmyID)
-//	 */
-//	@Override
-//	public Coordinate whereIsUnit(String leader, ArmyID army)
-//	{
-//		// If it's in the list of units, return it; else it's not there so return null.
-//				for(UnitInitializer u: this.units) {
-//					if(u.unit.getLeader() == leader && u.unit.getArmy() == army) {
-//						return u.where;
-//					}
-//				}
-//				return null;
-//	}
+	/*
+	 * @see gettysburg.common.GbgGame#whereIsUnit(java.lang.String, gettysburg.common.ArmyID)
+	 */
+	@Override
+	public Coordinate whereIsUnit(String leader, ArmyID army)
+	{
+		return this.gameState.getBoard().whereIsUnit(leader, army);
+	}
+	
+	/**
+	 * Getter for a unit by leader and army ID.
+	 */
+	public GbgUnit getUnit(String leader, ArmyID army) {
+		return this.gameState.getBoard().getUnit(leader, army);
+	}
 	
 	/**
 	 * Setter for the state, set by the states

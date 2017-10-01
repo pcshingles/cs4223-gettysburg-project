@@ -11,9 +11,9 @@ import student.gettysburg.engine.utility.configure.UnitInitializer;
 
 public abstract class GbgGameState {
 
-	private int turnNum;
-	private GbgGameStep step;
-	private Board board;
+	protected int turnNum;
+	protected GbgGameStep step;
+	protected Board board;
 	
 	
 	public GbgGameState(int turnNum, GbgGameStep step, ArrayList<UnitInitializer> units) {
@@ -50,6 +50,22 @@ public abstract class GbgGameState {
 	 */
 	public Board getBoard() {
 		return this.board;
+	}
+	
+	/**
+	 * Setter for turn number
+	 * @param turn
+	 */
+	public void setTurnNum(int turn) {
+		this.turnNum = turn;
+	}
+	
+	/**
+	 * Setter for the game step
+	 * @param step
+	 */
+	public void setGameStep(GbgGameStep step) {
+		this.step = step;
 	}
 	
 	/**

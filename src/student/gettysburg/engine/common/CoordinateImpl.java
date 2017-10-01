@@ -141,15 +141,15 @@ public class CoordinateImpl implements Coordinate
 	/*
 	 * @see java.lang.Object#hashCode()
 	 */
-//	@Override
-//	public int hashCode()
-//	{
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + x;
-//		result = prime * result + y;
-//		return result;
-//	}
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + x;
+		result = prime * result + y;
+		return result;
+	}
 
 	/*
 	 * We do not compare a CoordinateImpl to any object that just implements

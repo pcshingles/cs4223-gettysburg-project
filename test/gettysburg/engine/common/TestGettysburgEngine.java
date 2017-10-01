@@ -12,6 +12,10 @@
 package gettysburg.engine.common;
 import java.util.ArrayList;
 import gettysburg.common.*;
+import student.gettysburg.engine.common.CoordinateImpl;
+import student.gettysburg.engine.common.GbgGameState;
+import student.gettysburg.engine.common.GbgGameStateBattle;
+import student.gettysburg.engine.common.GbgGameStateMove;
 import student.gettysburg.engine.common.GettysburgEngine;
 
 /**
@@ -20,15 +24,13 @@ import student.gettysburg.engine.common.GettysburgEngine;
  */
 public class TestGettysburgEngine extends GettysburgEngine implements TestGbgGame
 {
-
 	/*
 	 * @see gettysburg.common.TestGbgGame#clearBoard()
 	 */
 	@Override
 	public void clearBoard()
 	{
-		// TODO Auto-generated method stub
-
+		this.gameState.getBoard().clearBoard();
 	}
 	/*
 	 * Used to see if we initialized the units correctly
@@ -44,8 +46,8 @@ public class TestGettysburgEngine extends GettysburgEngine implements TestGbgGam
 	@Override
 	public void putUnitAt(GbgUnit arg0, int arg1, int arg2, Direction arg3)
 	{
-		// TODO Auto-generated method stub
-
+		arg0.setFacing(arg3);
+		this.gameState.getBoard().putUnit(arg0, CoordinateImpl.makeCoordinate(arg1,arg2));
 	}
 
 	/*
@@ -64,8 +66,23 @@ public class TestGettysburgEngine extends GettysburgEngine implements TestGbgGam
 	@Override
 	public void setGameStep(GbgGameStep arg0)
 	{
-		// TODO Auto-generated method stub
-
+		GbgGameState state = this.gameState;
+		switch(arg0) {
+		case CBATTLE:
+			this.gameState = new GbgGameStateBattle(state.getTurnNum(), GbgGameStep.CBATTLE, state.getBoard());
+			break;
+		case CMOVE:
+			this.gameState = new GbgGameStateMove(state.getTurnNum(), GbgGameStep.CMOVE, state.getBoard());
+			break;
+		case UBATTLE:
+			this.gameState = new GbgGameStateBattle(state.getTurnNum(), GbgGameStep.UBATTLE, state.getBoard());
+			break;
+		case UMOVE:
+			this.gameState = new GbgGameStateMove(state.getTurnNum(), GbgGameStep.UMOVE, state.getBoard());
+			break;
+		default:
+			break;
+		}
 	}
 
 	/*
@@ -74,8 +91,7 @@ public class TestGettysburgEngine extends GettysburgEngine implements TestGbgGam
 	@Override
 	public void setGameTurn(int arg0)
 	{
-		// TODO Auto-generated method stub
-
+		this.gameState.setTurnNum(arg0);
 	}
 
 }

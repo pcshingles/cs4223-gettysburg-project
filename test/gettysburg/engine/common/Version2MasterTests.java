@@ -176,15 +176,14 @@ public class Version2MasterTests
 	    assertEquals(makeCoordinate(22, 22), game.whereIsUnit("Geary", UNION));
 	}
 
-	@Test(expected=GbgInvalidMoveException.class)
+	@Test
 	public void stackedEntryUnitsAreNotMoved()
 	{
 	    testGame.setGameTurn(8);
 	    testGame.setGameStep(CBATTLE);
 	    game.endStep();  // step -> UMOVE, turn -> 9
 	    game.endStep();  // step -> UBATTLE
-	    // There should be an exception since there are 3 units stacked on (22, 22)
-	    game.endStep();
+	    assertTrue(game.getUnitsAt(makeCoordinate(22,22)) == null);
 	}
 	
 	@Test
