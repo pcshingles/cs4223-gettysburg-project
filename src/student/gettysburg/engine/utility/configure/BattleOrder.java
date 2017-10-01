@@ -7,7 +7,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Copyright ©2016-2017 Gary F. Pollice
+ * Copyright Â©2016-2017 Gary F. Pollice
  *******************************************************************************/
 package student.gettysburg.engine.utility.configure;
 
@@ -16,6 +16,7 @@ import static gettysburg.common.ArmyID.*;
 import static gettysburg.common.Direction.*;
 import static gettysburg.common.UnitSize.*;
 import static gettysburg.common.UnitType.*;
+import java.util.*;
 
 /**
  * This class is used for initialization. It has static methods that return the
@@ -25,11 +26,11 @@ import static gettysburg.common.UnitType.*;
 public class BattleOrder
 {
 	private static UnitInitializer[] confederateBattleOrder = {
-		mcu(0, 14, 8, 4, EAST, "Heth", 2, DIVISION, INFANTRY),			// Turn 0: start of game
+		mcu(0, 8, 8, 4, EAST, "Heth", 2, DIVISION, INFANTRY),				// Turn 0: start of game
 		mcu(2, 1, 5, 0, EAST, "Hill", 8, ARMY, HQ),						// Turn 2: 7/1 0700
 		mcu(2, 1, 5, 4, EAST, "Pender", 2, DIVISION, INFANTRY),
 		mcu(2, 1, 5, 2, EAST, "McIntosh", 4, BATTALION, ARTILLERY),
-		mcu(2, 3, 5, 2, EAST, "Pegrom", 4, BATTALION, ARTILLERY),
+		mcu(2, 1, 5, 2, EAST, "Pegrom", 4, BATTALION, ARTILLERY),
 		mcu(3, 16, 1, 0, SOUTH, "Ewell", 8, ARMY, HQ),					// Turn 3: 7/1 0800
 		mcu(3, 16, 1, 4, SOUTH, "Rodes", 2, DIVISION, INFANTRY),
 		mcu(7, 1, 5, 0, EAST, "R. E. Lee", 8, ARMY_GROUP, HQ),			// Turn 7: 7/1 1200
@@ -40,7 +41,7 @@ public class BattleOrder
 		mcu(8, 1, 5, 4, EAST, "Anderson", 2, DIVISION, INFANTRY),
 		mcu(10, 16, 1, 4, SOUTH, "Johnson", 2, DIVISION, INFANTRY),		// Turn 10: 7/1 1500
 		mcu(12, 1, 5, 3, EAST, "McLaws", 2, DIVISION, INFANTRY),			// Turn 12: 7/1/ 1700
-		mcu(12, 1, 5, 3, EAST, "HOOD", 2, DIVISION, INFANTRY),
+		mcu(12, 1, 5, 3, EAST, "Hood", 2, DIVISION, INFANTRY),
 		mcu(19, 1, 5, 2, EAST, "Alexander", 4, BATTALION, ARTILLERY),		// Turn 19: 7/2 1000
 		mcu(19, 1, 5, 2, EAST, "Esthelmon", 4, BATTALION, ARTILLERY),
 		mcu(19, 1, 5, 3, EAST, "Pickett", 2, DIVISION, INFANTRY),
@@ -55,12 +56,12 @@ public class BattleOrder
 	};
 	
 	private static UnitInitializer[] unionBattleOrder = {
-		muu(0, 20, 13, 1, WEST, "Gamble", 4, BRIGADE, CAVALRY),			// Turn 0: start of game
-		muu(0, 23, 9, 1, SOUTH, "Devin", 4, BRIGADE, CAVALRY),
-		muu(0, 7, 28, 0, NORTHEAST, "Reynolds", 8, ARMY, HQ),
-		muu(0, 7, 28, 3, NORTHEAST, "Wadsworth", 2, DIVISION, INFANTRY),
-		muu(0, 7, 28, 3, NORTHEAST, "Robinson", 2, DIVISION, INFANTRY),
-		muu(0, 7, 28, 3, NORTHEAST, "Rowley", 2, DIVISION, INFANTRY),
+		muu(0, 11, 11, 1, WEST, "Gamble", 4, BRIGADE, CAVALRY),			// Turn 0: start of game
+		muu(0, 13, 9, 1, SOUTH, "Devin", 4, BRIGADE, CAVALRY),
+		muu(2, 7, 28, 0, NORTHEAST, "Reynolds", 8, ARMY, HQ),
+		muu(2, 7, 28, 3, NORTHEAST, "Wadsworth", 2, DIVISION, INFANTRY),
+		muu(2, 7, 28, 3, NORTHEAST, "Robinson", 2, DIVISION, INFANTRY),
+		muu(2, 7, 28, 3, NORTHEAST, "Rowley", 2, DIVISION, INFANTRY),
 		muu(3, 14, 28, 0, NORTH, "Howard", 8, ARMY, HQ),					// Turn 3: 7/1 0800
 		muu(3, 14, 28, 3, NORTH, "von Steinwehr", 2, DIVISION, INFANTRY),
 		muu(3, 14, 28, 2, NORTH, "Schurz", 2, DIVISION, INFANTRY),
@@ -92,21 +93,45 @@ public class BattleOrder
 		muu(18, 22, 22, 1, NORTHWEST, "Gregg", 4, BRIGADE, CAVALRY),
 		muu(18, 22, 22, 1, NORTHWEST, "Huey", 4, BRIGADE, CAVALRY),
 		muu(21, 22, 22, 0, NORTHWEST, "Sedgwick", 8, ARMY, HQ),			// Turn 21: 7/2 1200
-		muu(21, 22, 22, 3, NORTHWEST, "Geary", 2, DIVISION, INFANTRY),
+		muu(21, 22, 22, 3, NORTHWEST, "Wirght", 2, DIVISION, INFANTRY),
 		muu(21, 22, 22, 3, NORTHWEST, "Howe", 2, DIVISION, INFANTRY),
 		muu(21, 22, 22, 3, NORTHWEST, "Newton", 2, DIVISION, INFANTRY),
-		muu(21, 22, 22, 3, NORTHWEST, "Geary", 2, DIVISION, INFANTRY),
 		muu(31, 7, 28, 3, NORTHEAST, "Merritt", 2, DIVISION, INFANTRY),	// Turn 31: 7/3 0800
 	};
 	
-	public static UnitInitializer[] getConfederateBattleOrder()
+	public static Map<String, GbgUnit> getUnits(ArmyID army)
 	{
-		return confederateBattleOrder;
+		final Map<String, GbgUnit> units = new HashMap<String, GbgUnit>();
+		final UnitInitializer[] battleOrder = 
+				army == UNION ? unionBattleOrder : confederateBattleOrder;
+		for (UnitInitializer ui : battleOrder) {
+			units.put(ui.unit.getLeader(), ui.unit);
+		}
+		return units;
 	}
 	
-	public static UnitInitializer[] getUnionBattleOrder()
+	public static List<UnitInitializer> getBattleOrder(ArmyID army, int turn)
 	{
-		return unionBattleOrder;
+		// Create list of correct army, then return new list of that filtered by turn
+		UnitInitializer[] battleOrderArray = 
+				army == UNION ? unionBattleOrder : confederateBattleOrder;
+		ArrayList<UnitInitializer> finalArray = new ArrayList<UnitInitializer>();
+		for(UnitInitializer u : battleOrderArray) {
+			if(u.turn == turn) {
+				finalArray.add(u);
+			}
+		}
+		return finalArray;
+	}
+	
+	/*
+	 * Get battle order given a turn number as well as army.
+	 */
+	public static List<UnitInitializer> getBattleOrder(ArmyID army)
+	{
+		final UnitInitializer[] battleOrderArray =
+				army == UNION ? unionBattleOrder : confederateBattleOrder;
+		return new LinkedList<UnitInitializer>(Arrays.asList(battleOrderArray));
 	}
 	
 	private static UnitInitializer mui(int turn, int x, int y, ArmyID id, int combatFactor, 

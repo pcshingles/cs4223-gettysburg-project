@@ -25,56 +25,56 @@ import com.google.gson.Gson;
  */
 public class Configurator
 {
-	private static String configPath = "configuration/";
-	private final Gson gson;
-	
-	/**
-	 * Default constructor.
-	 */
-	public Configurator()
-	{
-		gson = new Gson();
-	}
-	
-	/**
-	 * Write out the board configuration as a JSON object to the board file.
-	 */
-	private void createBoardConfiguration()
-	{
-		final String boardConfigPath = configPath + "board.json";
-		try (PrintWriter writer = new PrintWriter(boardConfigPath)) {
-			squaresToJson(writer);
-			writer.close();
-		} catch (IOException e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
-	}
-	
-	private void squaresToJson(PrintWriter writer)
-	{
-		writer.println("[");
-		final LoadableSquare[] squares = LoadableSquare.getSquares();
-		for (int i = 0; i < squares.length; i++) {
-			writer.print(gson.toJson(squares[i]));
-			if (i < squares.length - 1) writer.println(",");
-		}
-		writer.println("\n]");
-	}
-	
-	/**
-	 * Entry to the configurator utility.
-	 * @param args a list of configuration items to write. Change this to fit your needs.
-	 */
-	public static void main(String[] args)
-	{
-		final Configurator conf = new Configurator();
-		for (String s : args) {
-			switch (s) {
-				case "board":
-					conf.createBoardConfiguration();
-					break;
-			}
-		}
-	}
+//	private static String configPath = "configuration/";
+//	private final Gson gson;
+//	
+//	/**
+//	 * Default constructor.
+//	 */
+//	public Configurator()
+//	{
+//		gson = new Gson();
+//	}
+//	
+//	/**
+//	 * Write out the board configuration as a JSON object to the board file.
+//	 */
+//	private void createBoardConfiguration()
+//	{
+//		final String boardConfigPath = configPath + "board.json";
+//		try (PrintWriter writer = new PrintWriter(boardConfigPath)) {
+//			squaresToJson(writer);
+//			writer.close();
+//		} catch (IOException e) {
+//			System.err.println(e.getMessage());
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	private void squaresToJson(PrintWriter writer)
+//	{
+//		writer.println("[");
+//		final LoadableSquare[] squares = LoadableSquare.getSquares();
+//		for (int i = 0; i < squares.length; i++) {
+//			writer.print(gson.toJson(squares[i]));
+//			if (i < squares.length - 1) writer.println(",");
+//		}
+//		writer.println("\n]");
+//	}
+//	
+//	/**
+//	 * Entry to the configurator utility.
+//	 * @param args a list of configuration items to write. Change this to fit your needs.
+//	 */
+//	public static void main(String[] args)
+//	{
+//		final Configurator conf = new Configurator();
+//		for (String s : args) {
+//			switch (s) {
+//				case "board":
+//					conf.createBoardConfiguration();
+//					break;
+//			}
+//		}
+//	}
 }

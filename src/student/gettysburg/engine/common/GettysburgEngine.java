@@ -11,13 +11,7 @@
  *******************************************************************************/
 package student.gettysburg.engine.common;
 import gettysburg.common.*;
-import gettysburg.common.exceptions.GbgInvalidMoveException;
-
 import static gettysburg.common.ArmyID.*;
-import static gettysburg.common.Direction.*;
-import static gettysburg.common.UnitSize.*;
-import static gettysburg.common.UnitType.*;
-
 import java.util.*;
 import student.gettysburg.engine.utility.configure.BattleOrder;
 import student.gettysburg.engine.utility.configure.UnitInitializer;
@@ -32,48 +26,20 @@ import student.gettysburg.engine.utility.configure.UnitInitializer;
  */
 public class GettysburgEngine implements GbgGame
 {
-	/**
-	 * private fields for turn number, step, and the units on the board
-	 */
-	private int turnNum;
-	private GbgGameStep step;
-	protected ArrayList<UnitInitializer> units;
-	protected ArrayList<GbgUnit> movedUnits;
-	protected ArrayList<GbgUnit> facedUnits;
 	
+	// Game state holds data of the state of the game.
+	protected GbgGameState gameState;
 	
 	/**
-	 * Constructor - add the three units to the board, init turn to 1, and step to union
+	 * Constructor - initialize game state to move
 	 */
 	public GettysburgEngine(){
-		this.turnNum = 1;
-		this.step = GbgGameStep.UMOVE;
-		units = new ArrayList<UnitInitializer>();
-		movedUnits = new ArrayList<GbgUnit>();
-		facedUnits = new ArrayList<GbgUnit>();
-		units.add(new UnitInitializer(this.turnNum, 11, 11, UNION, 5, WEST, "Gamble", 3, DIVISION, CAVALRY));
-		units.add(new UnitInitializer(this.turnNum, 13, 9, UNION, 5, SOUTH, "Devin", 3, DIVISION, CAVALRY));
-		units.add(new UnitInitializer(this.turnNum, 8, 8, CONFEDERATE, 5, EAST, "Heth", 2, DIVISION, INFANTRY));
-	}
-	
-	/*
-	 * @see gettysburg.common.GbgGame#endBattleStep()
-	 */
-	@Override
-	public void endBattleStep()
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	/*
-	 * @see gettysburg.common.GbgGame#endMoveStep()
-	 */
-	@Override
-	public void endMoveStep()
-	{
-		// TODO Auto-generated method stub
-
+		int turnNum = 1;
+		GbgGameStep step = GbgGameStep.UMOVE;
+		ArrayList<UnitInitializer> units = new ArrayList<UnitInitializer>();
+		units.addAll(BattleOrder.getBattleOrder(UNION, 0));
+		units.addAll(BattleOrder.getBattleOrder(CONFEDERATE, 0));
+		this.gameState = new GbgGameStateMove(turnNum, step, units);
 	}
 
 	/*
@@ -82,8 +48,8 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public GbgGameStep endStep()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		this.setState(this.gameState.endStep());
+		return this.gameState.getStep();
 	}
 
 	/*
@@ -102,53 +68,38 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public GbgGameStep getCurrentStep()
 	{
-		return this.step;
+		return this.gameState.getStep();
 	}
 	
 	/*
 	 * @see gettysburg.common.GbgGame#getGameStatus()
-	 * Checks every unit, if tehre are different army ID's then it's in progress
+	 * Checks every unit, if there are different army ID's then it's in progress
 	 */
 	@Override
 	public GbgGameStatus getGameStatus()
 	{
-		boolean isOver = true;
-		ArmyID id = null;
-		for(UnitInitializer u : this.units){
-			if(id != u.unit.getArmy() || id == null){
-				isOver = false;
-				break;
-			}
-			id = u.unit.getArmy();
-		}
-		if(id == CONFEDERATE){
-			return GbgGameStatus.CONFEDERATE_WINS;
-		}
-		if(id == UNION){
-			return GbgGameStatus.UNION_WINS;
-		}
-		return GbgGameStatus.IN_PROGRESS;
+		return this.gameState.getStatus();
 	}
 	
 	/*
 	 * @see gettysburg.common.GbgGame#getGameDate()
 	 */
-	@Override
-	public Calendar getGameDate()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public Calendar getGameDate()
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	/*
 	 * @see gettysburg.common.GbgGame#getSquareDescriptor(gettysburg.common.Coordinate)
 	 */
-	@Override
-	public GbgSquareDescriptor getSquareDescriptor(Coordinate where)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public GbgSquareDescriptor getSquareDescriptor(Coordinate where)
+//	{
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 
 	/*
 	 * @see gettysburg.common.GbgGame#getTurnNumber()
@@ -156,7 +107,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public int getTurnNumber()
 	{
-		return this.turnNum;
+		return this.gameState.getTurnNum();
 	}
 
 	/*
@@ -165,8 +116,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public Direction getUnitFacing(GbgUnit unit)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return this.gameState.getBoard().getUnitFacing(unit);
 	}
 
 	/*
@@ -175,14 +125,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public Collection<GbgUnit> getUnitsAt(Coordinate where)
 	{
-		/*Collection<GbgUnit> units = new ArrayList<GbgUnit>();
-		for (UnitInitializer u : this.units){
-			if (u.where.equals(where)){
-				units.add(u.unit);
-			}
-		}
-		return units;*/
-		return null;
+		return this.gameState.getBoard().getUnitsAt(where);
 	}
 
 	/*
@@ -191,44 +134,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public void moveUnit(GbgUnit unit, Coordinate from, Coordinate to)
 	{	
-		// Ensure that it's the right player's turn
-		if(this.step == GbgGameStep.UMOVE){
-			if (unit.getArmy() == CONFEDERATE){
-				throw new GbgInvalidMoveException("Wrong turn");
-			}
-		}
-		
-		if(this.step == GbgGameStep.CMOVE){
-			if (unit.getArmy() == UNION){
-				throw new GbgInvalidMoveException("Wrong turn");
-			}
-		}
-		
-		// Ensure that unit has not yet moved
-		for(GbgUnit u: this.movedUnits){
-			if(u.getLeader() == unit.getLeader() && u.getArmy() == unit.getArmy()){
-				throw new GbgInvalidMoveException("Unit has already moved");
-			}
-		}
-		
-		// Ensure that no other unit is in the square
-		for(UnitInitializer u : this.units){
-			if (u.where.equals(to)){
-				throw new GbgInvalidMoveException("Tried moving into another unit");
-			}
-		}
-		/* ensure that there is a path from the source to the
-		* destination whose length does not exceed the moving unit’s movement factor */
-		if(unit.getMovementFactor() < from.distanceTo(to)){
-			throw new GbgInvalidMoveException("Move factor is less than distance attempted to move");
-		}
-		// Otherwise, move
-		for(UnitInitializer u: this.units){
-			if (u.unit == unit){
-				u.where = to;
-			}
-		}
-		this.movedUnits.add(unit);
+		this.gameState.moveUnit(unit, from, to);
 	}
 
 	/*
@@ -247,32 +153,7 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public void setUnitFacing(GbgUnit unit, Direction direction)
 	{
-		
-		// Ensure that it's the right player's turn
-				if(this.step == GbgGameStep.UMOVE){
-					if (unit.getArmy() == CONFEDERATE){
-						throw new GbgInvalidMoveException("Wrong turn");
-					}
-				}
-				
-				if(this.step == GbgGameStep.CMOVE){
-					if (unit.getArmy() == UNION){
-						throw new GbgInvalidMoveException("Wrong turn");
-					}
-				}
-		
-		// Check to see if unit has already been faced
-			for(GbgUnit u: this.facedUnits){
-				if(u.getArmy() == unit.getArmy() && u.getLeader() == unit.getLeader()){
-					throw new GbgInvalidMoveException("Unit has already been faced this turn");
-				}
-			}
-		
-			// move unit
-			unit.setFacing(direction);
-		
-		this.facedUnits.add(unit);
-
+		this.gameState.setUnitFacing(unit, direction);
 	}
 
 	/*
@@ -281,18 +162,30 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public Coordinate whereIsUnit(GbgUnit unit)
 	{
-		
-		return null;
+		return this.gameState.getBoard().whereIsUnit(unit);
 	}
 
-	/*
-	 * @see gettysburg.common.GbgGame#whereIsUnit(java.lang.String, gettysburg.common.ArmyID)
+//	/*
+//	 * @see gettysburg.common.GbgGame#whereIsUnit(java.lang.String, gettysburg.common.ArmyID)
+//	 */
+//	@Override
+//	public Coordinate whereIsUnit(String leader, ArmyID army)
+//	{
+//		// If it's in the list of units, return it; else it's not there so return null.
+//				for(UnitInitializer u: this.units) {
+//					if(u.unit.getLeader() == leader && u.unit.getArmy() == army) {
+//						return u.where;
+//					}
+//				}
+//				return null;
+//	}
+	
+	/**
+	 * Setter for the state, set by the states
+	 * @param state
 	 */
-	@Override
-	public Coordinate whereIsUnit(String leader, ArmyID army)
-	{
-		// TODO Auto-generated method stub
-		return null;
+	public void setState(GbgGameState state) {
+		this.gameState = state;
 	}
 
 }

@@ -14,6 +14,8 @@ package student.gettysburg.engine;
 import java.util.Collection;
 import gettysburg.common.*;
 import gettysburg.common.exceptions.GbgNotImplementedException;
+import gettysburg.engine.common.TestGettysburgEngine;
+import student.gettysburg.engine.common.CoordinateImpl;
 import student.gettysburg.engine.common.GettysburgEngine;
 
 /**
@@ -45,17 +47,17 @@ public final class GettysburgFactory
 	 * @param version the version to create
 	 * @return an instance of the specific version of the Gettysburg game
 	 */
-	public static GbgGame makeGame(String version)
-	{
-		throw new GbgNotImplementedException("makeGame()");
-	}
+//	public static GbgGame makeGame(String version)
+//	{
+//		throw new GbgNotImplementedException("makeGame()");
+//	}
 	/**
 	 * Creation method for a test Gettysburg game
 	 * @return the TestGbgGame instance
 	 */
 	public static TestGbgGame makeTestGame()
 	{
-		throw new GbgNotImplementedException("makeTestGame()");
+		return new TestGettysburgEngine();
 	}
 	
 	
@@ -70,10 +72,10 @@ public final class GettysburgFactory
 	 * @param version the version to create
 	 * @return an instance of the specific version of the Gettysburg game
 	 */
-	public static GbgGame makeTestGame(String version)
-	{
-		throw new GbgNotImplementedException("makeGame()");
-	}
+//	public static GbgGame makeTestGame(String version)
+//	{
+//		throw new GbgNotImplementedException("makeGame()");
+//	}
 	
 	/**
 	 * Factory method for creating Coordinates. This method makes a Coordinate
@@ -86,7 +88,17 @@ public final class GettysburgFactory
 	 */
 	public static Coordinate makeCoordinate(int x, int y)
 	{
-		throw new GbgNotImplementedException("makeCoordinate()");
+		return CoordinateImpl.makeCoordinate(x,y);
+	}
+	
+	/*
+	 * Copy constructor for coordinate impl.
+	 */
+	public static Coordinate makeCoordinate(Coordinate cord) {
+		if(cord == null) {
+			return null;
+		}
+		return CoordinateImpl.makeCoordinate(cord.getX(), cord.getY());
 	}
 	
 	/**
@@ -111,8 +123,8 @@ public final class GettysburgFactory
 	 * @param terrain the terrain of the square
 	 * @return the SquareDescriptor
 	 */
-	public static GbgSquareDescriptor makeSquareDescriptor(int elevation, Terrain terrain)
-	{
-		throw new GbgNotImplementedException("makeSquareDescriptor()");
-	}
+//	public static GbgSquareDescriptor makeSquareDescriptor(int elevation, Terrain terrain)
+//	{
+//		throw new GbgNotImplementedException("makeSquareDescriptor()");
+//	}
 }

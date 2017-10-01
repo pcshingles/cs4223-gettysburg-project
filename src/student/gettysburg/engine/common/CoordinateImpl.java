@@ -60,6 +60,18 @@ public class CoordinateImpl implements Coordinate
 		return new CoordinateImpl(x, y);
 	}
 	
+	/**
+	 * Copy constructor for CoordinateImpl
+	 * @param cord
+	 * @return
+	 */
+	public static CoordinateImpl makeCoordinate(Coordinate cord) {
+		if(cord == null) {
+			return null;
+		}
+		else return CoordinateImpl.makeCoordinate(cord.getX(), cord.getY());
+	}
+	
 	/*
 	 * @see gettysburg.common.Coordinate#directionTo(gettysburg.common.Coordinate)
 	 */
@@ -129,15 +141,15 @@ public class CoordinateImpl implements Coordinate
 	/*
 	 * @see java.lang.Object#hashCode()
 	 */
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + x;
-		result = prime * result + y;
-		return result;
-	}
+//	@Override
+//	public int hashCode()
+//	{
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + x;
+//		result = prime * result + y;
+//		return result;
+//	}
 
 	/*
 	 * We do not compare a CoordinateImpl to any object that just implements

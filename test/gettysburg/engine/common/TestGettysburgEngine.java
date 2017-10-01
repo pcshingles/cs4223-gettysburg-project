@@ -10,12 +10,9 @@
  * Copyright ©2016-2017 Gary F. Pollice
  *******************************************************************************/
 package gettysburg.engine.common;
-
 import java.util.ArrayList;
-
 import gettysburg.common.*;
 import student.gettysburg.engine.common.GettysburgEngine;
-import student.gettysburg.engine.utility.configure.UnitInitializer;
 
 /**
  * Test implementation of the Gettysburg game.
@@ -37,8 +34,8 @@ public class TestGettysburgEngine extends GettysburgEngine implements TestGbgGam
 	 * Used to see if we initialized the units correctly
 	 * 
 	 */
-	public ArrayList<UnitInitializer> getUnits(){
-		return this.units;
+	public ArrayList<GbgUnit> getUnits(){
+		return super.gameState.getBoard().getAllUnits();
 	}
 
 	/*
