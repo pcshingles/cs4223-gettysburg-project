@@ -11,6 +11,8 @@
  *******************************************************************************/
 package student.gettysburg.engine.common;
 import gettysburg.common.*;
+import gettysburg.common.exceptions.GbgInvalidActionException;
+
 import static gettysburg.common.ArmyID.*;
 import java.util.*;
 import student.gettysburg.engine.utility.configure.BattleOrder;
@@ -58,8 +60,11 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public Collection<BattleDescriptor> getBattlesToResolve()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		try {
+		return ((GbgGameStateBattle) this.gameState).getBattlesToResolve();
+		}catch(Exception e) {
+			return new ArrayList<BattleDescriptor>();
+		}
 	}
 
 	/*
@@ -143,8 +148,11 @@ public class GettysburgEngine implements GbgGame
 	@Override
 	public BattleResolution resolveBattle(BattleDescriptor battle)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return ((GbgGameStateBattle) this.gameState).resolveBattle(battle);
+			}catch(Exception e) {
+				throw new GbgInvalidActionException("Cannot resolve battle in this state");
+			}
 	}
 
 	/*

@@ -11,6 +11,8 @@
  *******************************************************************************/
 package student.gettysburg.engine.common;
 
+import java.util.ArrayList;
+
 import gettysburg.common.*;
 import gettysburg.common.exceptions.GbgInvalidCoordinateException;
 
@@ -75,35 +77,35 @@ public class CoordinateImpl implements Coordinate
 	/*
 	 * @see gettysburg.common.Coordinate#directionTo(gettysburg.common.Coordinate)
 	 */
-	@Override
-	public Direction directionTo(Coordinate coordinate)
-	{
-		if(this.x == coordinate.getX() && this.y > coordinate.getY()){
-			return Direction.NORTH;
-		}
-		if(this.x == coordinate.getX() && this.y < coordinate.getY()){
-			return Direction.SOUTH;
-		}
-		if(this.x > coordinate.getX() && this.y == coordinate.getY()){
-			return Direction.WEST;
-		}
-		if(this.x < coordinate.getX() && this.y == coordinate.getY()){
-			return Direction.EAST;
-		}
-		if(this.x > coordinate.getX() && this.y > coordinate.getY()){
-			return Direction.NORTHWEST;
-		}
-		if(this.x < coordinate.getX() && this.y > coordinate.getY()){
-			return Direction.NORTHEAST;
-		}
-		if(this.x > coordinate.getX() && this.y < coordinate.getY()){
-			return Direction.SOUTHWEST;
-		}
-		if(this.x < coordinate.getX() && this.y < coordinate.getY()){
-			return Direction.SOUTHEAST;
-		}
-		return Direction.NONE;
-	}
+//	@Override
+//	public Direction directionTo(Coordinate coordinate)
+//	{
+//		if(this.x == coordinate.getX() && this.y > coordinate.getY()){
+//			return Direction.NORTH;
+//		}
+//		if(this.x == coordinate.getX() && this.y < coordinate.getY()){
+//			return Direction.SOUTH;
+//		}
+//		if(this.x > coordinate.getX() && this.y == coordinate.getY()){
+//			return Direction.WEST;
+//		}
+//		if(this.x < coordinate.getX() && this.y == coordinate.getY()){
+//			return Direction.EAST;
+//		}
+//		if(this.x > coordinate.getX() && this.y > coordinate.getY()){
+//			return Direction.NORTHWEST;
+//		}
+//		if(this.x < coordinate.getX() && this.y > coordinate.getY()){
+//			return Direction.NORTHEAST;
+//		}
+//		if(this.x > coordinate.getX() && this.y < coordinate.getY()){
+//			return Direction.SOUTHWEST;
+//		}
+//		if(this.x < coordinate.getX() && this.y < coordinate.getY()){
+//			return Direction.SOUTHEAST;
+//		}
+//		return Direction.NONE;
+//	}
 
 	/*
 	 * @see gettysburg.common.Coordinate#distanceTo(gettysburg.common.Coordinate)
@@ -135,6 +137,99 @@ public class CoordinateImpl implements Coordinate
 	public int getY()
 	{
 		return this.y;
+	}
+	
+	/**
+	 * Return a list of valid adjacent coordinates
+	 * @param c1
+	 * @return
+	 */
+	public static ArrayList<Coordinate> getAdjacentCoordinates(Coordinate c1){
+		ArrayList<Coordinate> result = new ArrayList<Coordinate>();
+		int x = c1.getX();
+		int y = c1.getY();
+		addCordToList(x,y-1, result);
+		addCordToList(x,y+1, result);
+		addCordToList(x+1,y, result);
+		addCordToList(x+1,y-1, result);
+		addCordToList(x+1,y+1, result);
+		addCordToList(x-1,y, result);
+		addCordToList(x-1,y+1, result);
+		addCordToList(x-1,y-1, result);
+		return result;
+	}
+	
+	/**
+	 * Returns a list of coordinates that are controlled by a direction
+	 * @param d
+	 * @param c
+	 * @return
+	 */
+	public static ArrayList<Coordinate> getFacingCoordinates(Coordinate c, Direction d){
+		
+		int x = c.getX();
+		int y = c.getY();
+		
+		ArrayList<Coordinate> result = new ArrayList<Coordinate>();
+		
+		switch(d) {
+		case NORTH:
+			addCordToList(x,y-1, result);
+			addCordToList(x-1,y-1, result);
+			addCordToList(x+1,y-1, result);
+			break;
+		case SOUTH:
+			addCordToList(x,y+1, result);
+			addCordToList(x-1,y+1, result);
+			addCordToList(x+1,y+1, result);
+			break;
+		case WEST:
+			addCordToList(x-1,y, result);
+			addCordToList(x-1,y-1, result);
+			addCordToList(x-1,y+1, result);
+			break;
+		case EAST:
+			addCordToList(x+1,y, result);
+			addCordToList(x+1,y+1, result);
+			addCordToList(x+1,y-1, result);
+			break;
+		case NORTHEAST:
+			addCordToList(x,y-1, result);
+			addCordToList(x+1,y-1, result);
+			addCordToList(x+1,y, result);
+			break;
+		case NORTHWEST:
+			addCordToList(x,y-1, result);
+			addCordToList(x-1,y-1, result);
+			addCordToList(x-1,y, result);
+			break;
+		case SOUTHEAST:
+			addCordToList(x,y+1, result);
+			addCordToList(x+1,y+1, result);
+			addCordToList(x+1,y, result);
+			break;
+		case SOUTHWEST:
+			addCordToList(x,y+1, result);
+			addCordToList(x-1,y+1, result);
+			addCordToList(x-1,y, result);
+			break;
+		default:
+			return null;
+		}
+		return result;
+	}
+	
+	/**
+	 * helper function for adding a coordinate to a list
+	 * @param x
+	 * @param y
+	 * @param list
+	 */
+	private static void addCordToList(int x, int y, ArrayList<Coordinate> list) {
+		try {
+			CoordinateImpl attempt = CoordinateImpl.makeCoordinate(x, y);
+			list.add(attempt);
+		} catch(Exception e) {}
 	}
 	
 	// Change the equals and hashCode if you need to.

@@ -7,38 +7,46 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Copyright ©2016-2017 Gary F. Pollice
+ * Copyright ©2016 Gary F. Pollice
  *******************************************************************************/
-package student.gettysburg.engine.common;
 
-import java.util.ArrayList;
-import java.util.Collection;
+package gettysburg.engine.common;
+
+import java.util.*;
 import gettysburg.common.*;
 
 /**
- * Implementation of the BattleDescriptor interface. There is als
- * a factory method that creates a battle unit. The constructor and
- * is up to the implementor and additional methods may be added as
- * necessary for the student's design needs.
- * 
- * @version Jul 27, 2017
+ * BattleDescriptor for testing
+ * @version Oct 4, 2017
  */
-public class BattleDescriptorImpl implements BattleDescriptor
+class TestBattleDescriptor implements BattleDescriptor
 {
-	private ArrayList<GbgUnit> attackers;
-	private ArrayList<GbgUnit> defenders;
+	private final Collection<GbgUnit> attackers;
+	private final Collection<GbgUnit> defenders;
 	
-	public BattleDescriptorImpl() {
+	public TestBattleDescriptor()
+	{
 		attackers = new ArrayList<GbgUnit>();
 		defenders = new ArrayList<GbgUnit>();
 	}
+	
+	public void addAttacker(GbgUnit unit) 
+	{
+		attackers.add(unit);
+	}
+	
+	public void addDefender(GbgUnit unit)
+	{
+		defenders.add(unit);
+	}
+	
 	/*
 	 * @see gettysburg.common.BattleDescriptor#getAttackers()
 	 */
 	@Override
 	public Collection<GbgUnit> getAttackers()
 	{
-		return this.attackers;
+		return attackers;
 	}
 
 	/*
@@ -47,23 +55,7 @@ public class BattleDescriptorImpl implements BattleDescriptor
 	@Override
 	public Collection<GbgUnit> getDefenders()
 	{
-		return this.defenders;
-	}
-	
-	/**
-	 * Adder to the defenders
-	 * @param defender
-	 */
-	public void addDefender(GbgUnit defender) {
-		this.defenders.add(defender);
-	}
-	
-	/**
-	 * Adder to the attackers
-	 * @param attacker
-	 */
-	public void addAttacker(GbgUnit attacker) {
-		this.attackers.add(attacker);
+		return defenders;
 	}
 
 }

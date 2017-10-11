@@ -1,7 +1,9 @@
 package student.gettysburg.engine.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
+import gettysburg.common.BattleDescriptor;
 import gettysburg.common.Coordinate;
 import gettysburg.common.Direction;
 import gettysburg.common.GbgGameStatus;

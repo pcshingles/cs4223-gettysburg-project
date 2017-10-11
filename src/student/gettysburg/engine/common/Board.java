@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Set;
 
 import gettysburg.common.ArmyID;
 import gettysburg.common.Coordinate;
@@ -185,112 +186,125 @@ public class Board {
 	 * Function that calculates shortest path. -1 if impossible.
 	 * @param c1
 	 * @param c2
+	 * @param enemy
 	 * @return length of path, -1 if impossible
 	 */
-	public int shortestPath(Coordinate c1, Coordinate c2) {
+	public int shortestPath(Coordinate c1, Coordinate c2, ArmyID enemy) {
 		
 		// Queue holding the paths
 		Queue<Queue<Coordinate>> queue = new LinkedList<Queue<Coordinate>>();
+		
 		// Starting coordinate
 		Queue<Coordinate> start = new LinkedList<Coordinate>();
 		start.add(c1);
 		queue.add(start);
+		
 		// Visited list
 		ArrayList<Coordinate> visited = new ArrayList<Coordinate>();
 		visited.add(c1);
+		
+		// Create obstacles = enemy ZOC
+		ArrayList<Coordinate> obstacles = getEnemyZOC(enemy);
+		obstacles.addAll(this.getEnemyPositions(enemy));
+		// Remove destination from set of obstacles
+		while(obstacles.remove(c2));
+		
+		
+		
 		// List of successfull paths
 		ArrayList<Queue<Coordinate>> successfullPaths = new ArrayList<Queue<Coordinate>>();
 		
 		/*
-		 * Loop:
-		 * if empty, return -1.
+		 * Loop: loop through all possible paths
 		 */
 		while(!queue.isEmpty()) {
 			// Current path in queue
 			Queue<Coordinate> currentPath = queue.poll();
 			// Current coordinate in path
-			Coordinate cuurentCord = currentPath.poll();
+			Coordinate currentCord = currentPath.peek();
 			// For each adjacent cord, add new paths to queue if valid
+			for(Coordinate option : CoordinateImpl.getAdjacentCoordinates(currentCord)) {
+				if(!visited.contains(option)) {
+					if(!obstacles.contains(option)) {
+						// Terminal test
+						if(CoordinateImpl.makeCoordinate(option).equals(CoordinateImpl.makeCoordinate(c2))) {
+							Queue<Coordinate> newPath = new LinkedList<Coordinate>();
+							newPath.add(option);
+							newPath.addAll(currentPath);
+							successfullPaths.add(newPath);
+						} else {
+							// Add a new path to the queue
+							Queue<Coordinate> newPath = new LinkedList<Coordinate>();
+							newPath.add(option);
+							newPath.addAll(currentPath);
+							queue.add(newPath);
+							// Add to visited
+							visited.add(option);
+						}
+					}
+				}
+			}
 		}
+		
+		// If there's no path, indicate failure
+		if(successfullPaths.size() == 0) {
+			return -1;
+		}
+		
+		// Loop through the successfull paths and return the best one.
+		int bestPath = successfullPaths.iterator().next().size();
+		for(Queue<Coordinate> path : successfullPaths) {
+			if(path.size() < bestPath) {
+				bestPath = path.size();
+			}
+		}
+		return bestPath-1;
 	}
 	
 	/**
 	 * Gets all coordinates that are controlled by enemies
+	 * @param enemy
 	 * @return
 	 */
-	public ArrayList<Coordinate> getEnemyZOC(){
-		
-	}
-	
-	/**
-	 * Returns a list of coordinates that are controlled by a direction
-	 * @param d
-	 * @param c
-	 * @return
-	 */
-	public ArrayList<Coordinate> getFacingCoordinates(Coordinate c, Direction d){
-		
-		int x = c.getX();
-		int y = c.getY();
+	public ArrayList<Coordinate> getEnemyZOC(ArmyID enemy){
 		
 		ArrayList<Coordinate> result = new ArrayList<Coordinate>();
-		
-		switch(d) {
-		case NORTH:
-			addCordToList(x,y-1, result);
-			addCordToList(x-1,y-1, result);
-			addCordToList(x+1,y-1, result);
-			break;
-		case SOUTH:
-			addCordToList(x,y+1, result);
-			addCordToList(x-1,y+1, result);
-			addCordToList(x+1,y+1, result);
-			break;
-		case WEST:
-			addCordToList(x-1,y, result);
-			addCordToList(x-1,y-1, result);
-			addCordToList(x-1,y+1, result);
-			break;
-		case EAST:
-			addCordToList(x+1,y, result);
-			addCordToList(x+1,y+1, result);
-			addCordToList(x+1,y-1, result);
-			break;
-		case NORTHEAST:
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			break;
-		case NORTHWEST:
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			break;
-		case SOUTHEAST:
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			break;
-		case SOUTHWEST:
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			addCordToList(x,y, result);
-			break;
-		default:
-			return null;
+		// for each enemy unit on the board, add to list of coordinates
+		for(Coordinate c : this.board.keySet()) {
+			// for this enemy, add his ZOC to list
+			GbgUnit currentUnit = this.board.get(c).iterator().next();
+			if(currentUnit.getArmy() == enemy) {
+				result.addAll(CoordinateImpl.getFacingCoordinates(c, currentUnit.getFacing()));
+			}
 		}
+		return result;
 	}
 	
 	/**
-	 * helper function for adding a coordinate to a list
-	 * @param x
-	 * @param y
-	 * @param list
+	 * Get all enemy positions
+	 * @param enemy
+	 * @return
 	 */
-	private void addCordToList(int x, int y, ArrayList<Coordinate> list) {
-		try {
-			CoordinateImpl attempt = CoordinateImpl.makeCoordinate(x, y);
-			list.add(attempt);
-		} catch(Exception e) {}
+	public ArrayList<Coordinate> getEnemyPositions(ArmyID enemy){
+		
+		ArrayList<Coordinate> result = new ArrayList<Coordinate>();
+		// add each enemy's location
+		for(Coordinate c : this.board.keySet()) {
+			GbgUnit enemyUnit = board.get(c).iterator().next();
+			if(enemyUnit.getArmy() == enemy) {
+				result.add(c);
+			}
+		}
+		return result;
 	}
+	
+	/**
+	 * getter for all of the coordinates
+	 * @return
+	 */
+	public Set<Coordinate> getCoordinates(){
+		return this.board.keySet();
+	}
+	
+	
 }

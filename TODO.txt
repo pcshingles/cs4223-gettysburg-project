@@ -1,0 +1,6 @@
+1. Ensure all previous valid master tests provided pass
+2. Ensure we can't move through an enemy zone to get to an open board piece
+3. ensure that out pathfinding algorithm circumvents enemy units by testing that we can go around enemy units
+4. ensure that we can actually land on a space that is in an enemy's zone of control
+5. ensure that we cant end the battle step without resolving potential battles
+6. ensure that we cant resolve a battle if the units of that battle have already fought that turn

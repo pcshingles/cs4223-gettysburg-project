@@ -1,11 +1,13 @@
 package student.gettysburg.engine.common;
 import java.util.ArrayList;
+import java.util.Collection;
 import gettysburg.common.Coordinate;
 import gettysburg.common.Direction;
 import gettysburg.common.GbgGameStatus;
 import gettysburg.common.GbgGameStep;
 import gettysburg.common.GbgUnit;
 import gettysburg.common.ArmyID;
+import gettysburg.common.BattleDescriptor;
 import gettysburg.common.exceptions.GbgInvalidMoveException;
 import student.gettysburg.engine.utility.configure.BattleOrder;
 import student.gettysburg.engine.utility.configure.UnitInitializer;
@@ -14,6 +16,7 @@ public class GbgGameStateMove extends GbgGameState {
 	
 	private ArrayList<GbgUnit> movedUnits;
 	private ArrayList<GbgUnit> facedUnits;
+	private ArmyID army;
 
 	/**
 	 * First-time constructor
@@ -25,6 +28,7 @@ public class GbgGameStateMove extends GbgGameState {
 		super(turnNum, step, units);
 		this.movedUnits = new ArrayList<GbgUnit>();
 		this.facedUnits = new ArrayList<GbgUnit>();
+		this.army = step == GbgGameStep.UMOVE ? ArmyID.UNION : ArmyID.CONFEDERATE;
 	}
 	
 	/**
@@ -100,6 +104,7 @@ public class GbgGameStateMove extends GbgGameState {
 
 	@Override
 	public void moveUnit(GbgUnit unit, Coordinate from, Coordinate to) {
+		
 		from = CoordinateImpl.makeCoordinate(from);
 		to = CoordinateImpl.makeCoordinate(to);
 		// Coordinate from is unit's coordinate
@@ -119,7 +124,7 @@ public class GbgGameStateMove extends GbgGameState {
 
 		// There is no unit in the square already
 		if(this.getBoard().getUnitsAt(to) != null) {
-			if(this.getBoard().getUnitsAt(to).contains(unit)) {
+			if(this.getBoard().getUnitsAt(to).size() > 0) {
 				throw new GbgInvalidMoveException("Tried moving into another unit");
 			}
 		}
@@ -127,6 +132,21 @@ public class GbgGameStateMove extends GbgGameState {
 		// We are not exceeding the movement factor
 		if(unit.getMovementFactor() < from.distanceTo(to)){
 			throw new GbgInvalidMoveException("Move factor is less than distance attempted to move");
+		}
+		
+		// There exists a path to this coordinate
+		ArmyID enemy = unit.getArmy() == ArmyID.UNION ? ArmyID.CONFEDERATE : ArmyID.UNION;
+		// IF moving into enemy territory, tell algorithm that it's fine
+		boolean movingToZOC = this.getBoard().getEnemyZOC(enemy).contains(to);
+		if(movingToZOC) {
+			
+		}
+		int shortestLength = this.getBoard().shortestPath(from, to, enemy);
+		if(shortestLength == -1) {
+			throw new GbgInvalidMoveException("There is no path to this location");
+		}
+		if(shortestLength > unit.getMovementFactor()) {
+			throw new GbgInvalidMoveException("Move factor is less than shortest available path");
 		}
 		
 		// Move unit
