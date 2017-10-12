@@ -114,11 +114,8 @@ public class CoordinateImpl implements Coordinate
 	@Override
 	public int distanceTo(Coordinate coordinate)
 	{
-		if (this.x == coordinate.getX() && this.y == coordinate.getY()){
-			return 0;
-		}
 		// Max(dx,dy) returns shortest path
-		else return Math.max(Math.abs(this.x-coordinate.getX()),Math.abs(this.y-coordinate.getY()));
+		return Math.max(Math.abs(this.x-coordinate.getX()),Math.abs(this.y-coordinate.getY()));
 	}
 
 	/*

@@ -155,15 +155,15 @@ public class GbgUnitImpl implements GbgUnit
 	/*
 	 * @see java.lang.Object#hashCode()
 	 */
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((armyID == null) ? 0 : armyID.hashCode());
-		result = prime * result + ((leader == null) ? 0 : leader.hashCode());
-		return result;
-	}
+//	@Override
+//	public int hashCode()
+//	{
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((armyID == null) ? 0 : armyID.hashCode());
+//		result = prime * result + ((leader == null) ? 0 : leader.hashCode());
+//		return result;
+//	}
 
 	/*
 	 * @see java.lang.Object#equals(java.lang.Object)

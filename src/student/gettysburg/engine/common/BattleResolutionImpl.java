@@ -1,6 +1,7 @@
 package student.gettysburg.engine.common;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.ArrayList;
 
 import gettysburg.common.ArmyID;
@@ -10,19 +11,25 @@ import gettysburg.common.GbgUnit;
 
 public class BattleResolutionImpl implements BattleResolution{
 	
+	// Units of concern
 	private ArrayList<GbgUnit> activeConfederateUnits;
 	private ArrayList<GbgUnit> activeUnionUnits;
 	private ArrayList<GbgUnit> eliminatedConfederateUnits;
 	private ArrayList<GbgUnit> eliminatedUnionUnits;
+	// Army IDs
 	private ArmyID attackerArmy;
 	private ArmyID eliminatedArmy;
+	// Battle result
 	private BattleResult result;
 	
+	
 	public BattleResolutionImpl() {
+		// Init lists
 		this.activeConfederateUnits = new ArrayList<GbgUnit>();
 		this.activeUnionUnits = new ArrayList<GbgUnit>();
 		this.eliminatedConfederateUnits = new ArrayList<GbgUnit>();
 		this.eliminatedUnionUnits = new ArrayList<GbgUnit>();
+		
 	}
 	
 	/**
@@ -41,13 +48,16 @@ public class BattleResolutionImpl implements BattleResolution{
 		// Set the army if not already done so
 		if(this.attackerArmy == null) {
 			this.attackerArmy = attackers.iterator().next().getArmy();
+		} else if(this.attackerArmy != attackers.iterator().next().getArmy()) {
+			System.out.println("Active unit army is not the same as the others added previously");
 		}
 		// Add attackers to respective list
-		while(attackers.iterator().hasNext()) {
+		Iterator<GbgUnit> atkrs = attackers.iterator();
+		while(atkrs.hasNext()) {
 			if(this.attackerArmy == ArmyID.UNION) {
-				this.activeUnionUnits.add(attackers.iterator().next());
+				this.activeUnionUnits.add(atkrs.next());
 			} else {
-				this.activeConfederateUnits.add(attackers.iterator().next());
+				this.activeConfederateUnits.add(atkrs.next());
 			}
 		}
 	}
@@ -56,12 +66,13 @@ public class BattleResolutionImpl implements BattleResolution{
 		if(this.eliminatedArmy == null) {
 			this.eliminatedArmy = eliminated.iterator().next().getArmy();
 		}
-		// Add attackers to respective list
-		while(eliminated.iterator().hasNext()) {
+		// Add units to respective list
+		Iterator<GbgUnit> elims = eliminated.iterator();
+		while(elims.hasNext()) {
 			if(this.eliminatedArmy == ArmyID.UNION) {
-				this.eliminatedUnionUnits.add(eliminated.iterator().next());
+				this.eliminatedUnionUnits.add(elims.next());
 			} else {
-				this.eliminatedConfederateUnits.add(eliminated.iterator().next());
+				this.eliminatedConfederateUnits.add(elims.next());
 			}
 		}
 	}
@@ -101,6 +112,13 @@ public class BattleResolutionImpl implements BattleResolution{
 			return null;
 		}
 		return this.eliminatedUnionUnits;
+	}
+
+	// Overridden method for singular eliminated unit to be added
+	public void addElimintedUnits(GbgUnit unit) {
+		ArrayList<GbgUnit> result = new ArrayList<GbgUnit>();
+		result.add(unit);
+		addElimintedUnits(result);
 	}
 
 }

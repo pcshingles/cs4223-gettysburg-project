@@ -1,15 +1,17 @@
 package student.gettysburg.engine.common;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-
 import gettysburg.common.ArmyID;
 import gettysburg.common.Coordinate;
 import gettysburg.common.Direction;
 import gettysburg.common.GbgUnit;
+import gettysburg.common.UnitType;
 import student.gettysburg.engine.utility.configure.UnitInitializer;
 
 public class Board {
@@ -184,12 +186,16 @@ public class Board {
 	
 	/**
 	 * Function that calculates shortest path. -1 if impossible.
+	 * Depth first search, adapted from Russel and Norvig
+	 * Uses Queue of Queues of Coordinates, representing a queue of paths to consider
 	 * @param c1
 	 * @param c2
 	 * @param enemy
 	 * @return length of path, -1 if impossible
 	 */
-	public int shortestPath(Coordinate c1, Coordinate c2, ArmyID enemy) {
+	public int shortestPath(Coordinate c1, Coordinate c2, GbgUnit unit) {
+		
+		ArmyID enemy = unit.getArmy() == ArmyID.CONFEDERATE ? ArmyID.UNION : ArmyID.CONFEDERATE;
 		
 		// Queue holding the paths
 		Queue<Queue<Coordinate>> queue = new LinkedList<Queue<Coordinate>>();
@@ -206,10 +212,9 @@ public class Board {
 		// Create obstacles = enemy ZOC
 		ArrayList<Coordinate> obstacles = getEnemyZOC(enemy);
 		obstacles.addAll(this.getEnemyPositions(enemy));
+		
 		// Remove destination from set of obstacles
 		while(obstacles.remove(c2));
-		
-		
 		
 		// List of successfull paths
 		ArrayList<Queue<Coordinate>> successfullPaths = new ArrayList<Queue<Coordinate>>();
@@ -233,11 +238,14 @@ public class Board {
 							newPath.addAll(currentPath);
 							successfullPaths.add(newPath);
 						} else {
-							// Add a new path to the queue
-							Queue<Coordinate> newPath = new LinkedList<Coordinate>();
-							newPath.add(option);
-							newPath.addAll(currentPath);
-							queue.add(newPath);
+							// Check to see if current location places us in enemyZOC
+							if(this.valdiatePosition(unit, option) || CoordinateImpl.makeCoordinate(option).equals(CoordinateImpl.makeCoordinate(c2))) {
+								// Add a new path to the queue
+								Queue<Coordinate> newPath = new LinkedList<Coordinate>();
+								newPath.add(option);
+								newPath.addAll(currentPath);
+								queue.add(newPath);
+							}
 							// Add to visited
 							visited.add(option);
 						}
@@ -262,6 +270,27 @@ public class Board {
 	}
 	
 	/**
+	 * Function indicated if a unit at given position would place any enemies in its ZOC
+	 * @param unit
+	 * @param option
+	 * @return
+	 */
+	private boolean valdiatePosition(GbgUnit unit, Coordinate option) {
+		ArrayList<Coordinate> zoc = CoordinateImpl.getFacingCoordinates(option, unit.getFacing());
+		// See if the board has enemies on that position
+		for(Coordinate c : zoc) {
+			ArrayList<GbgUnit> enemies = this.board.get(c);
+			if(!(enemies == null)) {
+				if (!enemies.iterator().next().getArmy().equals(unit.getArmy())) {
+					// Found enemy, position is invalid
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Gets all coordinates that are controlled by enemies
 	 * @param enemy
 	 * @return
@@ -271,11 +300,31 @@ public class Board {
 		ArrayList<Coordinate> result = new ArrayList<Coordinate>();
 		// for each enemy unit on the board, add to list of coordinates
 		for(Coordinate c : this.board.keySet()) {
-			// for this enemy, add his ZOC to list
+			// for this enemy, add his ZOC to list if not HQ
 			GbgUnit currentUnit = this.board.get(c).iterator().next();
-			if(currentUnit.getArmy() == enemy) {
+			if(currentUnit.getArmy() == enemy && currentUnit.getType() != UnitType.HQ) {
 				result.addAll(CoordinateImpl.getFacingCoordinates(c, currentUnit.getFacing()));
 			}
+		}
+		return result;
+	}
+	
+	/**
+	 * Overloaded method Gets all coordinates that are controlled by given enemies
+	 * @param enemy
+	 * @return
+	 */
+	public ArrayList<Coordinate> getEnemyZOC(Collection<GbgUnit> enemies){
+		
+		ArrayList<Coordinate> result = new ArrayList<Coordinate>();
+		ArrayList<Coordinate> enemyCoords = new ArrayList<Coordinate>();
+		enemies.forEach((GbgUnit) -> enemyCoords.add(this.whereIsUnit(GbgUnit)));
+		
+		// for each enemy unit given, add to list of coordinates
+		for(Coordinate c : enemyCoords) {
+			// for this enemy, add his ZOC to list
+			GbgUnit currentUnit = this.board.get(c).iterator().next();
+			result.addAll(CoordinateImpl.getFacingCoordinates(c, currentUnit.getFacing()));
 		}
 		return result;
 	}
@@ -299,12 +348,26 @@ public class Board {
 	}
 	
 	/**
+	 * Removes all units from the board
+	 * @param units
+	 */
+	public void removeAllFromBoard(Collection<GbgUnit> units) {
+		Iterator<GbgUnit> iter = units.iterator();
+		ArrayList<Coordinate> positions = new ArrayList<Coordinate>();
+		while(iter.hasNext()) {
+			positions.add(this.whereIsUnit(iter.next()));
+		}
+		for(Coordinate c : positions) {
+			this.board.remove(c);
+		}
+	}
+	
+	/**
 	 * getter for all of the coordinates
 	 * @return
 	 */
 	public Set<Coordinate> getCoordinates(){
 		return this.board.keySet();
 	}
-	
 	
 }

@@ -1,7 +1,4 @@
 package student.gettysburg.engine.common;
-import java.util.Collection;
-
-import gettysburg.common.BattleDescriptor;
 import gettysburg.common.Coordinate;
 import gettysburg.common.Direction;
 import gettysburg.common.GbgGameStatus;
@@ -35,12 +32,12 @@ public class GbgGameStateGameOver extends GbgGameState {
 
 	@Override
 	public void moveUnit(GbgUnit unit, Coordinate from, Coordinate where) {
-		throw new GbgInvalidMoveException("Game has ended, cannot move.");
+		//throw new GbgInvalidMoveException("Game has ended, cannot move.");
 	}
 
 	@Override
 	public void setUnitFacing(GbgUnit unit, Direction to) {
-		throw new GbgInvalidMoveException("Game has ended, cannot turn unit.");
+		//throw new GbgInvalidMoveException("Game has ended, cannot turn unit.");
 	}
 
 

@@ -85,26 +85,6 @@ public class GettysburgEngine implements GbgGame
 	{
 		return this.gameState.getStatus();
 	}
-	
-	/*
-	 * @see gettysburg.common.GbgGame#getGameDate()
-	 */
-//	@Override
-//	public Calendar getGameDate()
-//	{
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
-
-	/*
-	 * @see gettysburg.common.GbgGame#getSquareDescriptor(gettysburg.common.Coordinate)
-	 */
-//	@Override
-//	public GbgSquareDescriptor getSquareDescriptor(Coordinate where)
-//	{
-//		// TODO Auto-generated method stub
-//		return null;
-//	}
 
 	/*
 	 * @see gettysburg.common.GbgGame#getTurnNumber()

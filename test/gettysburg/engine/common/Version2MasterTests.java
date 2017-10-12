@@ -49,15 +49,159 @@ public class Version2MasterTests
 		rodes = GbgUnitImpl.makeUnit(CONFEDERATE, 4, SOUTH, "Rodes", 2, DIVISION, INFANTRY);
 		dance = GbgUnitImpl.makeUnit(CONFEDERATE, 2, EAST, "Dance", 4, BATTALION, ARTILLERY);
 		hampton = GbgUnitImpl.makeUnit(CONFEDERATE, 1, SOUTH, "Hampton", 4, BRIGADE, CAVALRY);
-		// If the previous statements fail, comment them out and try these
-//		rowley = TestUnit.makeUnit(UNION, 3, NORTHEAST, "Rowley", 2);
-//		schurz = TestUnit.makeUnit(UNION,  2,  NORTH, "Shurz", 2);
-//		rodes = TestUnit.makeUnit(CONFEDERATE, 4, SOUTH, "Rodes", 2);
-//		dance = TestUnit.makeUnit(CONFEDERATE, 2, EAST, "Dance", 4);
-//		hampton = TestUnit.makeUnit(CONFEDERATE, 1, SOUTH, "Hampton", 4);
-//		devin.setFacing(SOUTH);
-//		gamble.setFacing(WEST);
-//		heth.setFacing(EAST);
+	}
+	@Test
+	public void factoryMakesGame()
+	{
+		assertNotNull(game);
+	}
+
+	@Test
+	public void correctSquareForDevinUsingWhereIsUnit()
+	{
+		assertEquals(makeCoordinate(13, 9), game.whereIsUnit(devin));
+	}
+
+	@Test
+	public void correctSquareForDevinUsingGetUnitsAt()
+	{
+		GbgUnit unit = game.getUnitsAt(makeCoordinate(13, 9)).iterator().next();
+		assertNotNull(unit);
+		assertEquals("Devin", unit.getLeader());
+	}
+
+	@Test
+	public void correctSquareForHethUsingWhereIsUnit()
+	{
+		assertEquals(makeCoordinate(8, 8), game.whereIsUnit("Heth", CONFEDERATE));
+	}
+
+	@Test
+	public void correctSquareForHethUsingGetUnitsAt()
+	{
+		GbgUnit unit = game.getUnitsAt(makeCoordinate(8, 8)).iterator().next();
+		assertNotNull(unit);
+		assertEquals("Heth", unit.getLeader());
+	}
+
+	@Test
+	public void hethMovesWest()
+	{
+		game.endStep();
+		game.endStep();
+		game.moveUnit(heth,  makeCoordinate(8, 8), makeCoordinate(9, 8));
+		assertEquals(heth, game.getUnitsAt(makeCoordinate(9, 8)).iterator().next());
+	}
+
+	@Test
+	public void devinMovesNorthEast()
+	{
+		game.moveUnit(devin,  makeCoordinate(13, 9), makeCoordinate(16, 6));
+		assertEquals(makeCoordinate(16, 6), game.whereIsUnit(devin));
+	}
+
+	@Test
+	public void devinMovesSouthWest()
+	{
+		game.moveUnit(devin,  makeCoordinate(13, 9), makeCoordinate(9, 13));
+		assertEquals(makeCoordinate(9, 13), game.whereIsUnit(devin));
+	}
+
+	@Test
+	public void gambleMovesSouthEast()
+	{
+		game.moveUnit(gamble, makeCoordinate(11, 11), makeCoordinate(13, 12));
+		assertEquals(makeCoordinate(13, 12), game.whereIsUnit(gamble));
+	}
+
+	@Test
+	public void gambleMovesNorthWest()
+	{
+		game.moveUnit(gamble, makeCoordinate(11, 11), makeCoordinate(12, 10));
+		assertEquals(makeCoordinate(12, 10), game.whereIsUnit(gamble));
+	}
+	
+	@Test
+	public void hethMovesAnL()
+	{
+		game.endStep();
+		game.endStep();
+		game.moveUnit(heth,  makeCoordinate(8, 8), makeCoordinate(9, 6));
+		assertEquals(heth, game.getUnitsAt(makeCoordinate(9, 6)).iterator().next());
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void attemptToMoveTooFar()
+	{
+		game.moveUnit(devin, makeCoordinate(13, 9), makeCoordinate(18, 9));
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void attemptToMoveOntoAnotherUnit()
+	{
+		game.moveUnit(gamble, makeCoordinate(11, 11), makeCoordinate(13, 9));
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void attemptToMoveFromEmptySquare()
+	{
+		game.moveUnit(gamble,  makeCoordinate(10, 10), makeCoordinate(10, 9));
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void attemptToMoveWrongArmyUnit()
+	{
+		game.moveUnit(heth, makeCoordinate(8, 8), makeCoordinate(9, 6));
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void attemptToMoveUnitTwiceInOneTurn()
+	{
+		game.moveUnit(gamble, makeCoordinate(11, 11), makeCoordinate(12, 10));
+		game.moveUnit(gamble, makeCoordinate(12, 10), makeCoordinate(12, 11));
+	}
+	
+	// Facing tests
+	@Test
+	public void gambleFacesNorth()
+	{
+		game.setUnitFacing(gamble, NORTH);
+		assertEquals(NORTH, game.getUnitFacing(gamble));
+	}
+
+	@Test
+	public void devinFacesSoutheastAfterMoving()
+	{
+		game.moveUnit(devin, makeCoordinate(13, 9), makeCoordinate(13, 10));
+		game.setUnitFacing(devin, SOUTHEAST);
+		assertEquals(SOUTHEAST, game.getUnitFacing(devin));
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void hethAttemptsFacingChangeAtWrongTime()
+	{
+		game.setUnitFacing(heth, WEST);
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void devinTriesToSetFacingTwice()
+	{
+		game.setUnitFacing(devin, NORTHWEST);
+		game.moveUnit(devin, makeCoordinate(13, 9), makeCoordinate(13, 10));
+		game.setUnitFacing(devin, SOUTHEAST);
+	}
+	
+	// Other tests
+	@Test(expected=Exception.class)
+	public void queryInvalidSquare()
+	{
+		game.getUnitsAt(makeCoordinate(30, 30));
+	}
+
+	@Test(expected=GbgInvalidMoveException.class)
+	public void moveToStartingSquare()
+	{
+		game.moveUnit(gamble, makeCoordinate(11, 11), makeCoordinate(11, 11));
 	}
 	
 	// Initial setup tests taken as is from Version 1 tests
@@ -217,11 +361,10 @@ public class Version2MasterTests
 	@Test
 	public void allStackedUnitsAtStartOfGameMove()
 	{
-		Iterator<GbgUnit> units = game.getUnitsAt(makeCoordinate(7, 28)).iterator();
-		game.moveUnit(units.next(), makeCoordinate(7, 28), makeCoordinate(5, 28));
-		game.moveUnit(units.next(), makeCoordinate(7, 28), makeCoordinate(6, 28));
-		game.moveUnit(units.next(), makeCoordinate(7, 28), makeCoordinate(8, 28));
-		game.moveUnit(units.next(), makeCoordinate(7, 28), makeCoordinate(9, 28));
+		game.moveUnit(game.getUnitsAt(makeCoordinate(7, 28)).iterator().next(), makeCoordinate(7, 28), makeCoordinate(5, 28));
+		game.moveUnit(game.getUnitsAt(makeCoordinate(7, 28)).iterator().next(), makeCoordinate(7, 28), makeCoordinate(6, 28));
+		game.moveUnit(game.getUnitsAt(makeCoordinate(7, 28)).iterator().next(), makeCoordinate(7, 28), makeCoordinate(8, 28));
+		game.moveUnit(game.getUnitsAt(makeCoordinate(7, 28)).iterator().next(), makeCoordinate(7, 28), makeCoordinate(9, 28));
 		Collection<GbgUnit> remaining = game.getUnitsAt(makeCoordinate(7, 28));
 		assertTrue(remaining == null || remaining.isEmpty());
 	}
@@ -229,9 +372,8 @@ public class Version2MasterTests
 	@Test
 	public void someEntryUnitsRemainAndAreRemoved()
 	{
-		Iterator<GbgUnit> units = game.getUnitsAt(makeCoordinate(7, 28)).iterator();
-		game.moveUnit(units.next(), makeCoordinate(7, 28), makeCoordinate(5, 28));
-		game.moveUnit(units.next(), makeCoordinate(7, 28), makeCoordinate(6, 28));
+		game.moveUnit(game.getUnitsAt(makeCoordinate(7, 28)).iterator().next(), makeCoordinate(7, 28), makeCoordinate(5, 28));
+		game.moveUnit(game.getUnitsAt(makeCoordinate(7, 28)).iterator().next(), makeCoordinate(7, 28), makeCoordinate(6, 28));
 		Collection<GbgUnit> remaining = game.getUnitsAt(makeCoordinate(7, 28));
 		assertEquals(2, remaining.size());
 		game.endStep();
@@ -396,6 +538,94 @@ public class Version2MasterTests
 		bd.addAttacker(schurz);
 		bd.addDefender(heth);
 		game.resolveBattle(bd);		// heth is not in schurz' ZOC
+	}
+	
+// My tests start here
+
+	@Test(expected = GbgInvalidMoveException.class)
+	public void cannotMoveThroughEnemyZones() {
+		testGame.setGameTurn(1);
+		testGame.clearBoard();
+		testGame.putUnitAt(gamble, 1, 3, NORTH);
+		testGame.putUnitAt(devin, 3, 2, WEST);
+		testGame.putUnitAt(heth, 1, 1, EAST);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(1,1), makeCoordinate(3, 1));
+	}
+	
+	@Test
+	public void canMoveAroundEnemy() {
+		testGame.setGameTurn(1);
+		testGame.clearBoard();
+		testGame.putUnitAt(gamble, 2, 3, NORTHWEST);
+		testGame.putUnitAt(devin, 4, 2, NORTH);
+		testGame.putUnitAt(heth, 1, 1, EAST);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(1,1), makeCoordinate(3, 2));
+		assertTrue(game.whereIsUnit(heth).equals(makeCoordinate(3,2)));
+	}
+	
+	@Test
+	public void canMoveIntoEnemyZone() {
+		testGame.setGameTurn(1);
+		testGame.clearBoard();
+		testGame.putUnitAt(gamble, 1, 3, NORTH);
+		testGame.putUnitAt(devin, 3, 2, WEST);
+		testGame.putUnitAt(heth, 1, 1, EAST);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(1,1), makeCoordinate(2, 1));
+		assertTrue(game.whereIsUnit(heth).equals(makeCoordinate(2,1)));
+	}
+	
+	@Test(expected = GbgInvalidActionException.class)
+	public void cantEndBattleStepWithUnresolvedBattles() {
+		testGame.setGameTurn(2);
+		testGame.clearBoard();
+		testGame.putUnitAt(heth, 5, 5, SOUTH);
+		testGame.putUnitAt(devin, 5, 7, SOUTH);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(5,5), makeCoordinate(5, 6));
+		game.endStep();		// CBATTLE
+		game.endStep();		// Throws exception
+	}
+	
+	@Test(expected = GbgInvalidActionException.class)
+	public void cantResolveBattleThatHasUnitsThatAlreadyFought() {
+		testGame.setGameTurn(2);
+		testGame.clearBoard();
+		testGame.putUnitAt(heth, 5, 5, SOUTH);
+		testGame.putUnitAt(devin, 5, 7, SOUTH);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(5,5), makeCoordinate(5, 6));
+		game.endStep();		// CBATTLE
+		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	// Only 1
+		game.resolveBattle(battle);
+		game.resolveBattle(battle); 	// Throws exception
+	}
+	
+	@Test
+	public void canMoveUnitsZOCIntoEnemyForBattle() {
+		testGame.setGameTurn(2);
+		testGame.clearBoard();
+		testGame.putUnitAt(heth, 3, 2, SOUTH);
+		testGame.putUnitAt(devin, 1, 1, SOUTH);
+		testGame.setGameStep(UMOVE);
+		testGame.moveUnit(devin, makeCoordinate(1,1), makeCoordinate(2, 1));
+		assertEquals(game.whereIsUnit(devin), makeCoordinate(2,1));
+		testGame.endStep();
+		assertTrue(testGame.getBattlesToResolve().iterator().next().getAttackers().iterator().next().equals(devin));
+		
+	}
+	
+	@Test(expected = GbgInvalidMoveException.class)
+	public void cantMoveUnitsZOCThroughEnemyForBattle() {
+		testGame.setGameTurn(2);
+		testGame.clearBoard();
+		testGame.putUnitAt(heth, 3, 2, SOUTH);
+		testGame.putUnitAt(hampton, 2, 3, NORTH);
+		testGame.putUnitAt(devin, 1, 1, SOUTH);
+		testGame.setGameStep(UMOVE);
+		game.moveUnit(devin, makeCoordinate(1,1), makeCoordinate(3, 1));
 	}
 }
 
