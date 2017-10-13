@@ -12,6 +12,7 @@ import gettysburg.common.Coordinate;
 import gettysburg.common.Direction;
 import gettysburg.common.GbgUnit;
 import gettysburg.common.UnitType;
+import static gettysburg.common.ArmyID.*;
 import student.gettysburg.engine.utility.configure.UnitInitializer;
 
 public class Board {
@@ -368,6 +369,38 @@ public class Board {
 	 */
 	public Set<Coordinate> getCoordinates(){
 		return this.board.keySet();
+	}
+
+	/**
+	 * Function that attempts to retreat all units given. If it doesn't work, returns the ones that got stuck.
+	 * @param attackers
+	 * @return
+	 */
+	public ArrayList<GbgUnit> retreatUnits(Collection<GbgUnit> units) {
+		ArrayList<GbgUnit> stuckUnits = new ArrayList<GbgUnit>();
+		stuckUnits.addAll(units);
+		// For each unit, attempt to move
+		for(GbgUnit u : units) {
+			// Calculate obstacles
+			ArrayList<Coordinate> obstacles = new ArrayList<Coordinate>();
+			// add enemy positions
+			obstacles.addAll(this.getEnemyPositions(units.iterator().next().getArmy() == UNION ? CONFEDERATE : UNION));
+			// add friendly positions
+			obstacles.addAll(this.getEnemyPositions(units.iterator().next().getArmy() == UNION ? UNION : CONFEDERATE));
+			// add enemy ZOC
+			obstacles.addAll(this.getEnemyZOC(units.iterator().next().getArmy() == UNION ? CONFEDERATE : UNION));
+			// Get possible locations
+			ArrayList<Coordinate> adj = CoordinateImpl.getAdjacentCoordinates(this.whereIsUnit(u));
+			// For each location, tryo to move the unit
+			for(Coordinate c : adj) {
+				// Check to see if it's valid, move if so
+				if(!obstacles.contains(c)) {
+					this.moveUnit(u, c);
+					stuckUnits.remove(u);
+				}
+			}
+		}
+		return stuckUnits.isEmpty() ? null : stuckUnits;
 	}
 	
 }

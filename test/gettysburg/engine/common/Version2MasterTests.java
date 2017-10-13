@@ -17,6 +17,7 @@ import static gettysburg.common.Direction.*;
 import static gettysburg.common.UnitSize.*;
 import static gettysburg.common.UnitType.*;
 import static gettysburg.common.GbgGameStatus.IN_PROGRESS;
+import static gettysburg.common.BattleResult.*;
 import static gettysburg.common.GbgGameStep.*;
 import static student.gettysburg.engine.GettysburgFactory.*;
 import java.util.*;
@@ -396,35 +397,6 @@ public class Version2MasterTests
 	// Battle tests
 	
 	@Test
-	public void hethDefeatsDevin()
-	{
-		testGame.clearBoard();
-		testGame.setGameTurn(2);
-		testGame.putUnitAt(heth, 5, 5, SOUTH);
-		testGame.putUnitAt(devin, 5, 7, SOUTH);
-		testGame.setGameStep(CMOVE);
-		game.moveUnit(heth, makeCoordinate(5,5), makeCoordinate(5, 6));
-		game.endStep();		// CBATTLE
-		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	// Only 1
-		assertEquals(BattleResult.DELIM, game.resolveBattle(battle).getBattleResult());
-	}
-	
-	@Test
-	public void hethDefeatsDevinAndGamble()
-	{
-		testGame.clearBoard();
-		testGame.setGameTurn(2);
-		testGame.putUnitAt(heth, 5, 5, SOUTH);
-		testGame.putUnitAt(devin, 5, 7, SOUTH);
-		testGame.putUnitAt(gamble, 6, 7, SOUTH);
-		testGame.setGameStep(CMOVE);
-		game.moveUnit(heth, makeCoordinate(5,5), makeCoordinate(5, 6));
-		game.endStep();		// CBATTLE
-		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	// Only 1
-		assertEquals(BattleResult.DELIM, game.resolveBattle(battle).getBattleResult());
-	}
-	
-	@Test
 	public void twoBattles()
 	{
 		testGame.clearBoard();
@@ -444,44 +416,6 @@ public class Version2MasterTests
 		} else {
 			assertTrue(battle.getAttackers().contains(heth) || battle.getAttackers().contains(rodes));
 		}
-	}
-	
-	@Test
-	public void fightTwoBattles()
-	{
-		testGame.clearBoard();
-		testGame.setGameTurn(2);
-		testGame.setGameStep(UMOVE);
-		testGame.putUnitAt(heth, 5, 5, SOUTH);
-		testGame.putUnitAt(rowley, 5, 7, NORTH);
-		testGame.putUnitAt(hampton, 18, 18, EAST);
-		testGame.putUnitAt(gamble, 20, 18, WEST);
-		TestBattleDescriptor bd = new TestBattleDescriptor();
-		bd.addAttacker(rowley);
-		bd.addDefender(heth);
-		TestBattleDescriptor bd1 = new TestBattleDescriptor();
-		bd1.addAttacker(gamble);
-		bd1.addDefender(hampton);
-		game.moveUnit(rowley, makeCoordinate(5, 7), makeCoordinate(5, 6));
-		game.moveUnit(gamble, makeCoordinate(20, 18), makeCoordinate(19, 18));
-		game.endStep();	// CBATTLE
-		assertEquals(BattleResult.EXCHANGE, game.resolveBattle(bd).getBattleResult());
-		assertEquals(BattleResult.EXCHANGE, game.resolveBattle(bd1).getBattleResult());
-	}
-	
-	@Test
-	public void attackerGetsEliminated()
-	{
-		testGame.clearBoard();
-		testGame.setGameTurn(2);
-		testGame.putUnitAt(heth, 5, 5, SOUTH);
-		testGame.putUnitAt(devin, 5, 7, NORTH);
-		testGame.setGameStep(UMOVE);
-		assertEquals(heth, game.getUnitsAt(makeCoordinate(5, 5)).iterator().next());
-		game.moveUnit(devin, makeCoordinate(5,7), makeCoordinate(5, 6));
-		game.endStep();		// UBATTLE
-		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	// Only 1
-		assertEquals(BattleResult.AELIM, game.resolveBattle(battle).getBattleResult());
 	}
 	
 	@Test(expected=GbgInvalidActionException.class)
@@ -627,7 +561,168 @@ public class Version2MasterTests
 		testGame.setGameStep(UMOVE);
 		game.moveUnit(devin, makeCoordinate(1,1), makeCoordinate(3, 1));
 	}
+	
+	@Test
+	public void attackerGetsEliminated()
+	{
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(heth, 5, 5, SOUTH);
+		testGame.putUnitAt(devin, 5, 7, NORTH);
+		testGame.setGameStep(UMOVE);
+		assertEquals(heth, game.getUnitsAt(makeCoordinate(5, 5)).iterator().next());
+		game.moveUnit(devin, makeCoordinate(5,7), makeCoordinate(5, 6));
+		game.endStep();		// UBATTLE
+		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	// Only 1
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(AELIM);
+		testGame.setBattleResults(br);
+		assertEquals(BattleResult.AELIM, game.resolveBattle(battle).getBattleResult());
+	}
+	
+	@Test
+	public void fightTwoBattles()
+	{
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.setGameStep(UMOVE);
+		testGame.putUnitAt(heth, 5, 5, SOUTH);
+		testGame.putUnitAt(rowley, 5, 7, NORTH);
+		testGame.putUnitAt(hampton, 18, 18, EAST);
+		testGame.putUnitAt(gamble, 20, 18, WEST);
+		TestBattleDescriptor bd = new TestBattleDescriptor();
+		bd.addAttacker(rowley);
+		bd.addDefender(heth);
+		TestBattleDescriptor bd1 = new TestBattleDescriptor();
+		bd1.addAttacker(gamble);
+		bd1.addDefender(hampton);
+		game.moveUnit(rowley, makeCoordinate(5, 7), makeCoordinate(5, 6));
+		game.moveUnit(gamble, makeCoordinate(20, 18), makeCoordinate(19, 18));
+		game.endStep();	// CBATTLE
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(EXCHANGE);
+		br.add(EXCHANGE);
+		testGame.setBattleResults(br);
+		assertEquals(BattleResult.EXCHANGE, game.resolveBattle(bd).getBattleResult());
+		assertEquals(BattleResult.EXCHANGE, game.resolveBattle(bd1).getBattleResult());
+	}
+	
+	@Test
+	public void hethDefeatsDevinAndGamble()
+	{
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(heth, 5, 5, SOUTH);
+		testGame.putUnitAt(devin, 5, 7, SOUTH);
+		testGame.putUnitAt(gamble, 6, 7, SOUTH);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(5,5), makeCoordinate(5, 6));
+		game.endStep();		// CBATTLE
+		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	// Only 1
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(DELIM);
+		testGame.setBattleResults(br);
+		assertEquals(BattleResult.DELIM, game.resolveBattle(battle).getBattleResult());
+	}
+	
+	@Test
+	public void hethDefeatsDevin()
+	{
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(heth, 5, 5, SOUTH);
+		testGame.putUnitAt(devin, 5, 7, SOUTH);
+		testGame.setGameStep(CMOVE);
+		game.moveUnit(heth, makeCoordinate(5,5), makeCoordinate(5, 6));
+		game.endStep();		// CBATTLE
+		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(DELIM);
+		testGame.setBattleResults(br);
+		assertEquals(BattleResult.DELIM, game.resolveBattle(battle).getBattleResult());
+	}
+	
+	@Test
+	public void noEscapeDuringRetreat() {
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(heth, 1, 1, SOUTH);
+		testGame.putUnitAt(devin, 1, 2, NORTH);
+		testGame.putUnitAt(gamble, 2, 2, NORTH);
+		testGame.setGameStep(CMOVE);
+		testGame.endStep();
+		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(ABACK);
+		testGame.setBattleResults(br);
+		assertEquals(game.resolveBattle(battle).getEliminatedConfederateUnits().iterator().next(), heth);
+	}
+	
+	@Test
+	public void exchangeWithAttackersAtAdvantage() {
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(heth, 1, 1, SOUTH);
+		testGame.putUnitAt(devin, 1, 2, NORTH);
+		testGame.putUnitAt(gamble, 2, 2, NORTH);
+		testGame.setGameStep(CMOVE);
+		testGame.endStep();
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(EXCHANGE);
+		testGame.setBattleResults(br);
+		TestBattleDescriptor bd1 = new TestBattleDescriptor();
+		bd1.addAttacker(heth);
+		bd1.addDefender(devin);
+		bd1.addDefender(gamble);
+		BattleResolution brf = game.resolveBattle(bd1);
+		assertEquals(brf.getEliminatedConfederateUnits().iterator().next(), heth);
+		assertEquals(brf.getActiveConfederateUnits(), null);
+		assertEquals(brf.getActiveUnionUnits(), null);
+		assertTrue(brf.getEliminatedUnionUnits().contains(devin) && brf.getEliminatedUnionUnits().contains(gamble));
+		
+	} 
+	
+	@Test
+	public void successfulRetreat() {
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(heth, 1, 1, SOUTH);
+		testGame.putUnitAt(devin, 1, 2, NORTH);
+		testGame.setGameStep(CMOVE);
+		testGame.endStep();
+		BattleDescriptor battle = game.getBattlesToResolve().iterator().next();	
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(ABACK);
+		testGame.setBattleResults(br);
+		assertEquals(game.resolveBattle(battle).getActiveConfederateUnits().iterator().next(), heth); 
+	}
+	
+	@Test
+	public void onlyOneOutOfTwoEscapes() {
+		testGame.clearBoard();
+		testGame.setGameTurn(2);
+		testGame.putUnitAt(gamble, 2, 1, SOUTH);
+		testGame.putUnitAt(devin, 1, 1, SOUTH);
+		testGame.putUnitAt(heth, 1, 2, NORTH);
+		testGame.putUnitAt(hampton, 2, 2, NORTH);
+		testGame.setGameStep(UMOVE);
+		testGame.endStep();
+		List<BattleResult> br = new ArrayList<BattleResult>();
+		br.add(ABACK);
+		testGame.setBattleResults(br);
+		TestBattleDescriptor bd1 = new TestBattleDescriptor();
+		bd1.addAttacker(gamble);
+		bd1.addAttacker(devin);
+		bd1.addDefender(heth);
+		bd1.addDefender(hampton);
+		BattleResolution res = game.resolveBattle(bd1);
+		assertEquals(res.getActiveUnionUnits().iterator().next(), gamble); // gamble still lives
+		assertEquals(res.getEliminatedUnionUnits().iterator().next(), devin);
+	}
+	
 }
+
+
 
 class TestCoordinate implements Coordinate
 {

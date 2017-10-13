@@ -1,6 +1,16 @@
+Version 2:
 1. Ensure all previous valid master tests provided pass
 2. Ensure we can't move through an enemy zone to get to an open board piece
 3. ensure that out pathfinding algorithm circumvents enemy units by testing that we can go around enemy units
 4. ensure that we can actually land on a space that is in an enemy's zone of control
 5. ensure that we cant end the battle step without resolving potential battles
 6. ensure that we cant resolve a battle if the units of that battle have already fought that turn
+
+Version 3: 
+1. Test to make sure that all units that can battle must undergo a battle
+2. Test to make sure that in an exchange, when one side is better than the other and take out some units, that their side has units removed too.
+3. Test to make sure that we can't move a unit s.t. an enemy gets placed through their ZoC
+4. Test to make sure that we can at least move a unit s.t. an enemy gets placed into their ZoC
+5. Re-test all of the old battle tests to make sure that battles still work when using the setBattleResults method
+6. Test that a unit who is trapped gets eliminated when ABACK happens
+5. Test that a unit who isn't trapped doesn't get eliminated in ABACK result

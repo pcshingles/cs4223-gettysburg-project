@@ -1,0 +1,3 @@
+Project design:
+The project follows a state pattern for the main structure; the movement, battle, and game over states are their own classes, each extending the GbgGameState class. When the endStep() function is called, the states go into the engine and set the local variable of the current state to the next state, respective of confederate or union.
+The battle state has all of the decisions for when the game is in the battle state. The move state has all of the decisions for when the game is in the move state. Both states have access to a board object. The board has a lot of methods for interacting with the board, not the state. The state has a lot of methods for game decisions, and the engine just tells the state what to do.

@@ -2,6 +2,7 @@ package student.gettysburg.engine.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import gettysburg.common.ArmyID;
 import gettysburg.common.BattleDescriptor;
@@ -18,6 +19,8 @@ import gettysburg.common.exceptions.GbgInvalidMoveException;
 public class GbgGameStateBattle extends GbgGameState {
 	
 	private ArrayList<GbgUnit> battledUnits;
+	private ArrayList<GbgUnit> unitsNeedToBattle;
+	private List<BattleResult> results;
 	private ArmyID army;
 	
 	/**
@@ -29,7 +32,9 @@ public class GbgGameStateBattle extends GbgGameState {
 	public GbgGameStateBattle(int turnNum, GbgGameStep step, Board board) {
 		super(turnNum, step, board);
 		battledUnits = new ArrayList<GbgUnit>();
+		unitsNeedToBattle = new ArrayList<GbgUnit>();
 		this.army = step == GbgGameStep.UBATTLE ? ArmyID.UNION : ArmyID.CONFEDERATE;
+		updateUnitsWhoNeedToBattle(getBattlesToResolve()); // sets the units need to battle list
 	}
 
 	@Override
@@ -38,6 +43,10 @@ public class GbgGameStateBattle extends GbgGameState {
 		if(!this.getBattlesToResolve().isEmpty()) {
 			throw new GbgInvalidActionException("Cannot end battle step when there are unresolved battles");
 		}
+		if(!this.unitsNeedToBattle.isEmpty()) {
+			throw new GbgInvalidActionException("Cannot end battle when not all units have participated in battle");
+		}
+		
 		if(this.getStep() == GbgGameStep.CBATTLE) {
 			return new GbgGameStateMove(this.getTurnNum() + 1, GbgGameStep.UMOVE, this.getBoard());
 		} else if(this.getStep() == GbgGameStep.UBATTLE) {
@@ -62,6 +71,7 @@ public class GbgGameStateBattle extends GbgGameState {
 
 	/**
 	 * getter for the battles to resolve
+	 * Our set of battle descriptors will have exactly one attacker and 1..* defenders.
 	 * @return
 	 */
 	public Collection<BattleDescriptor> getBattlesToResolve() {
@@ -96,9 +106,27 @@ public class GbgGameStateBattle extends GbgGameState {
 				}
 			}
 		}
+		updateUnitsWhoNeedToBattle(battles);
 		return battles;
 	}
 	
+	/**
+	 * Helper function that adds units that need to battle this turn to our local variable
+	 * @param battles
+	 */
+	private void updateUnitsWhoNeedToBattle(Collection<BattleDescriptor> battles) {
+		for(BattleDescriptor b : battles) {
+			ArrayList<GbgUnit> attackers = new ArrayList<GbgUnit>(b.getAttackers());
+			ArrayList<GbgUnit> defenders = new ArrayList<GbgUnit>(b.getDefenders());
+			attackers.forEach((GbgUnit) -> {
+				if(!this.unitsNeedToBattle.contains(GbgUnit)) {
+					this.unitsNeedToBattle.add(GbgUnit);}});
+			defenders.forEach((GbgUnit) -> {
+				if(!this.unitsNeedToBattle.contains(GbgUnit)) {
+					this.unitsNeedToBattle.add(GbgUnit);}});
+			}
+		}
+
 	/**
 	 * Battle resolution method resolves a battle and returns a descriptor of the results
 	 * @param battle 	 * @return
@@ -158,26 +186,32 @@ public class GbgGameStateBattle extends GbgGameState {
 		}
 		combatRatio = attackerFactor/defenderFactor;
 		
-		// Get our battle result from the table
-		ResolutionTable resTable = new ResolutionTable();
-		result = resTable.getRow(resTable.resolutionTable, combatRatio)[ResolutionTable.getRandomInt()];
+		// Get our battle result from the table, check if we were given any first
+		if(this.results == null) {
+			ResolutionTable resTable = new ResolutionTable();
+			result = resTable.getRow(resTable.resolutionTable, combatRatio)[ResolutionTable.getRandomInt()];
+		} else {
+			result = results.remove(0);
+		}
 		
 		// Switch the result to handle appropriately
 		switch(result) {
 		case ABACK:
+			this.back(attackers, defenders, resolution);
 			break;
 		case AELIM:
+			// Defenders remain, attackers eliminated
 			resolution.addActiveUnits(defenders);
 			resolution.addElimintedUnits(attackers);
-			resolution.setResult(result);
 			this.getBoard().removeAllFromBoard(attackers);
 			break;
 		case DBACK:
+			this.back(defenders, attackers, resolution);
 			break;
 		case DELIM:
+			// Attackers remain, defenders eliminated
 			resolution.addActiveUnits(attackers);
 			resolution.addElimintedUnits(defenders);
-			resolution.setResult(result);
 			this.getBoard().removeAllFromBoard(defenders);
 			break;
 		case EXCHANGE:
@@ -201,7 +235,7 @@ public class GbgGameStateBattle extends GbgGameState {
 				int cumSum = 0;
 				// Keep adding attackers until we have removed enough
 				Iterator<GbgUnit> iter = defenders.iterator();
-				while(defenderFactor > cumSum) {
+				while(defenderFactor > cumSum && iter.hasNext()) {
 					GbgUnit dfndr = iter.next();
 					cumSum += dfndr.getCombatFactor();
 					resolution.addElimintedUnits(dfndr);
@@ -211,7 +245,44 @@ public class GbgGameStateBattle extends GbgGameState {
 		default:
 			break;
 		}
+		// update the units that still need to battle
+		this.unitsNeedToBattle.removeAll(attackers);
+		this.unitsNeedToBattle.removeAll(defenders);
+		// Update the result
+		resolution.setResult(result);
 		return resolution;
+	}
+	
+	/**
+	 * Helper for processing a backing move
+	 * @param attackers
+	 * @param defenders
+	 */
+	private void back(Collection<GbgUnit> attackers, Collection<GbgUnit> defenders, BattleResolutionImpl resolution) {
+		// Try to retreat the attackers
+		ArrayList<GbgUnit> stuckUnits = this.getBoard().retreatUnits(attackers);
+		// Case when retreating was successfull
+		if(stuckUnits == null) {
+			resolution.addActiveUnits(attackers);
+			resolution.addActiveUnits(defenders);
+		} else { // Case when couldn't escape : Loop through remaining units and remove from game
+			// Add active units that aren't stuck
+			resolution.addActiveUnits(defenders);
+			for(GbgUnit g : attackers) {
+				if(!stuckUnits.contains(g)) {
+					resolution.addActiveUnits(g); 
+				}
+			}
+			// Add eliminated units
+			for(GbgUnit unit : stuckUnits) {
+				resolution.addElimintedUnits(unit);
+			}
+			this.getBoard().removeAllFromBoard(stuckUnits);
+		}
+	}
+	
+	public void setResults(List<BattleResult> results) {
+		this.results = results;
 	}
 	
 }

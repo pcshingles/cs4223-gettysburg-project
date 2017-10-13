@@ -11,7 +11,10 @@
  *******************************************************************************/
 package gettysburg.engine.common;
 import java.util.ArrayList;
+import java.util.List;
+
 import gettysburg.common.*;
+import gettysburg.common.exceptions.GbgInvalidActionException;
 import student.gettysburg.engine.common.CoordinateImpl;
 import student.gettysburg.engine.common.GbgGameState;
 import student.gettysburg.engine.common.GbgGameStateBattle;
@@ -49,15 +52,14 @@ public class TestGettysburgEngine extends GettysburgEngine implements TestGbgGam
 		arg0.setFacing(arg3);
 		this.gameState.getBoard().putUnit(arg0, CoordinateImpl.makeCoordinate(arg1,arg2));
 	}
-
-	/*
-	 * @see gettysburg.common.TestGbgGame#setBattleResult(gettysburg.common.BattleDescriptor, gettysburg.common.BattleResult)
-	 */
+	
 	@Override
-	public void setBattleResult(BattleDescriptor arg0, BattleResult arg1)
-	{
-		// TODO Auto-generated method stub
-
+	public void setBattleResults(List<BattleResult> results)  {
+		try {
+			((GbgGameStateBattle) this.gameState).setResults(results);
+		}catch(Exception E) {
+			throw new GbgInvalidActionException("Cannot set battle results unless in battle");
+		}
 	}
 
 	/*

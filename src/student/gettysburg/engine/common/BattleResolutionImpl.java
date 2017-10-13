@@ -45,12 +45,8 @@ public class BattleResolutionImpl implements BattleResolution{
 	 * @param attackers
 	 */
 	public void addActiveUnits(Collection<GbgUnit> attackers) {
-		// Set the army if not already done so
-		if(this.attackerArmy == null) {
-			this.attackerArmy = attackers.iterator().next().getArmy();
-		} else if(this.attackerArmy != attackers.iterator().next().getArmy()) {
-			System.out.println("Active unit army is not the same as the others added previously");
-		}
+		// Set the army 
+		this.attackerArmy = attackers.iterator().next().getArmy();
 		// Add attackers to respective list
 		Iterator<GbgUnit> atkrs = attackers.iterator();
 		while(atkrs.hasNext()) {
@@ -62,10 +58,8 @@ public class BattleResolutionImpl implements BattleResolution{
 		}
 	}
 	public void addElimintedUnits(Collection<GbgUnit> eliminated) {
-		// Set the army if not already done so
-		if(this.eliminatedArmy == null) {
-			this.eliminatedArmy = eliminated.iterator().next().getArmy();
-		}
+		// Set the army
+		this.eliminatedArmy = eliminated.iterator().next().getArmy();
 		// Add units to respective list
 		Iterator<GbgUnit> elims = eliminated.iterator();
 		while(elims.hasNext()) {
@@ -119,6 +113,17 @@ public class BattleResolutionImpl implements BattleResolution{
 		ArrayList<GbgUnit> result = new ArrayList<GbgUnit>();
 		result.add(unit);
 		addElimintedUnits(result);
+	}
+
+	/**
+	 * Overridden function for singular unit to be added
+	 * @param g
+	 */
+	public void addActiveUnits(GbgUnit g) {
+		ArrayList<GbgUnit> unit = new ArrayList<GbgUnit>();
+		unit.add(g);
+		this.addActiveUnits(unit);
+		
 	}
 
 }
